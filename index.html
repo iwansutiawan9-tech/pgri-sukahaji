@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PGRI Sukahaji - Membangun Ekosistem Digital Ciamis Tangguh</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Menggunakan icon dari Phosphor Icons (ringan dan elegan) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <style>
-        /* VARIABEL WARNA & DASAR */
         :root {
             --primary-red: #D92B38;
             --dark-text: #1E293B;
@@ -24,135 +21,27 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg-main); color: var(--dark-text); -webkit-font-smoothing: antialiased; }
 
-        /* --- NAVBAR & NAVIGASI --- */
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: var(--shadow-sm);
-        }
+        header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-sm); }
+        .navbar { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.2rem; font-weight: 700; color: var(--primary-red); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .nav-menu { display: flex; gap: 2rem; list-style: none; align-items: center; }
+        .nav-link { text-decoration: none; color: var(--light-text); font-weight: 600; font-size: 0.95rem; transition: color 0.3s; cursor: pointer; }
+        .nav-link:hover, .nav-link.active { color: var(--primary-red); }
 
-        .navbar {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary-red);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Navigasi Utama */
-        .nav-menu {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-            align-items: center;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: var(--light-text);
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: color 0.3s;
-            cursor: pointer;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary-red);
-        }
-
-        /* Menu Dropdown SAKTI */
         .dropdown { position: relative; }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background-color: var(--white);
-            min-width: 220px;
-            box-shadow: var(--shadow-md);
-            border-radius: 8px;
-            padding: 0.5rem 0;
-            z-index: 10;
-        }
+        .dropdown-content { display: none; position: absolute; top: 100%; left: 0; background-color: var(--white); min-width: 220px; box-shadow: var(--shadow-md); border-radius: 8px; padding: 0.5rem 0; z-index: 10; }
         .dropdown:hover .dropdown-content { display: block; }
-        .dropdown-content a {
-            color: var(--light-text);
-            padding: 10px 20px;
-            text-decoration: none;
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .dropdown-content a:hover {
-            background-color: #F1F5F9;
-            color: var(--primary-red);
-        }
+        .dropdown-content a { color: var(--light-text); padding: 10px 20px; text-decoration: none; display: block; font-size: 0.9rem; font-weight: 500; }
+        .dropdown-content a:hover { background-color: #F1F5F9; color: var(--primary-red); }
 
-        /* Tombol Toggle Login (Pojok Kanan) */
-        .btn-login-toggle {
-            background: transparent;
-            border: 1px solid #E2E8F0;
-            color: var(--light-text);
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-login-toggle:hover {
-            background: var(--primary-red);
-            color: white;
-            border-color: var(--primary-red);
-        }
+        .btn-login-toggle { background: transparent; border: 1px solid #E2E8F0; color: var(--light-text); padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.3s; }
+        .btn-login-toggle:hover { background: var(--primary-red); color: white; border-color: var(--primary-red); }
+        .hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--dark-text); cursor: pointer; }
 
-        /* Menu HP (Hamburger) */
-        .hamburger {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--dark-text);
-            cursor: pointer;
-        }
+        #app-content { min-height: 80vh; padding: 2rem; max-width: 1200px; margin: 0 auto; }
 
-        /* --- AREA KONTEN (VIEW CONTAINER) --- */
-        #app-content {
-            min-height: 80vh;
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Responsivitas HP */
         @media (max-width: 768px) {
-            .nav-menu {
-                display: none; /* Sembunyikan menu di HP */
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background: var(--white);
-                padding: 1rem 2rem;
-                box-shadow: var(--shadow-md);
-            }
+            .nav-menu { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background: var(--white); padding: 1rem 2rem; box-shadow: var(--shadow-md); }
             .nav-menu.show { display: flex; }
             .hamburger { display: block; }
             .dropdown-content { position: static; box-shadow: none; padding-left: 1rem; }
@@ -161,15 +50,10 @@
 </head>
 <body>
 
-    <!-- BAGIAN CONTROLLER: NAVIGASI -->
     <header>
         <nav class="navbar">
-            <a href="#" class="logo" onclick="loadView('beranda')">
-                <i class="ph-fill ph-book-open"></i> PGRI Sukahaji
-            </a>
-            <button class="hamburger" id="btnHamburger">
-                <i class="ph ph-list"></i>
-            </button>
+            <a href="#" class="logo" onclick="loadView('beranda')"><i class="ph-fill ph-book-open"></i> PGRI Sukahaji</a>
+            <button class="hamburger" id="btnHamburger"><i class="ph ph-list"></i></button>
             <ul class="nav-menu" id="navMenu">
                 <li><a class="nav-link" onclick="loadView('beranda')">Beranda</a></li>
                 <li><a class="nav-link" onclick="loadView('profil')">Profil</a></li>
@@ -194,7 +78,6 @@
         </nav>
     </header>
 
-    <!-- BAGIAN VIEW: KONTEN HALAMAN -->
     <main id="app-content">
         <div style="text-align: center; margin-top: 5rem;">
             <i class="ph ph-spinner-gap ph-spin" style="font-size: 3rem; color: var(--primary-red);"></i>
@@ -202,20 +85,14 @@
         </div>
     </main>
 
-    <!-- SCRIPT CONTROLLER (ROUTING & LOGIC) -->
     <script>
         // --- KONFIGURASI API ---
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTG0yPwSyNqlBdF-9L3Ts60r6raWcb-bk5CxdfOnnSZXHtg-2I3aNw9nFn0s9wwpildQ/exec';
 
-        // --- FITUR TOGGLE HAMBURGER MENU (HP) ---
-        const btnHamburger = document.getElementById('btnHamburger');
-        const navMenu = document.getElementById('navMenu');
-
-        btnHamburger.addEventListener('click', () => {
-            navMenu.classList.toggle('show');
+        document.getElementById('btnHamburger').addEventListener('click', () => {
+            document.getElementById('navMenu').classList.toggle('show');
         });
 
-        // --- FUNGSI MANAJEMEN SESI (SESSION) ---
         function cekLogin() {
             const user = localStorage.getItem('userPGRI');
             return user ? JSON.parse(user) : null;
@@ -227,15 +104,13 @@
             loadView('beranda');
         }
 
-        // --- FUNGSI ROUTING UTAMA ---
         function loadView(viewName) {
             const contentArea = document.getElementById('app-content');
-            navMenu.classList.remove('show'); 
+            document.getElementById('navMenu').classList.remove('show'); 
             
             const user = cekLogin(); 
-
-            // Atur tombol Portal/Dasbor
             const btnPortal = document.querySelector('.btn-login-toggle');
+            
             if (user) {
                 btnPortal.innerHTML = `<i class="ph ph-user-circle"></i> <span style="font-size: 0.85rem;">Dasbor</span>`;
                 btnPortal.onclick = () => loadView('dashboard');
@@ -249,21 +124,16 @@
                     <div style="text-align: center; margin-top: 3rem;">
                         <h1 style="font-size: 3rem; color: #1E293B;">Membangun Ekosistem Digital<br><span style="color: #D92B38;">Ciamis Tangguh</span></h1>
                         <p style="margin-top: 1rem; color: #64748B;">Selamat datang di portal SAKTI PGRI Cabang Sukahaji.</p>
-                        <br>
-                        <p style="color: #94A3B8; font-style: italic;">(Feed gaya Facebook akan muncul di sini)</p>
-                    </div>
-                `;
+                        <br><p style="color: #94A3B8; font-style: italic;">(Feed gaya Facebook akan muncul di sini)</p>
+                    </div>`;
             } 
             else if (viewName === 'login') {
-                if (user) {
-                    loadView('dashboard');
-                    return;
-                }
+                if (user) { loadView('dashboard'); return; }
                 contentArea.innerHTML = `
                     <div style="max-width: 400px; margin: 3rem auto; background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #E2E8F0;">
                         <h2 style="text-align: center; margin-bottom: 1.5rem; color: #D92B38;">Portal Anggota</h2>
                         <div id="loginAlert" style="display:none; padding: 10px; margin-bottom: 15px; background: #FEE2E2; color: #991B1B; border-radius: 6px; font-size: 0.85rem; text-align:center;"></div>
-                        <form id="loginForm" onsubmit="prosesLogin(event)">
+                        <form onsubmit="prosesLogin(event)">
                             <div style="margin-bottom: 1rem;">
                                 <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Nomor Pokok Anggota (NPA)</label>
                                 <input type="text" id="npa" placeholder="Contoh: 32070625811" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; font-family: inherit;">
@@ -274,15 +144,10 @@
                             </div>
                             <button type="submit" id="btnLoginSubmit" style="width: 100%; padding: 10px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.3s;">Masuk</button>
                         </form>
-                    </div>
-                `;
+                    </div>`;
             }
             else if (viewName === 'dashboard') {
-                if (!user) {
-                    alert('Akses ditolak. Silakan login terlebih dahulu.');
-                    loadView('login');
-                    return;
-                }
+                if (!user) { alert('Silakan login terlebih dahulu.'); loadView('login'); return; }
 
                 contentArea.innerHTML = `
                     <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #F1F5F9; z-index: 2000; display: flex; font-family: 'Plus Jakarta Sans', sans-serif;">
@@ -290,58 +155,36 @@
                         <!-- SIDEBAR KIRI -->
                         <div style="width: 260px; background: #1E293B; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1);">
                             <div style="padding: 1.5rem; background: #0F172A; text-align: center; border-bottom: 1px solid #334155;">
-                                <h2 style="color: white; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                    <i class="ph-fill ph-book-open" style="color: #D92B38;"></i> PGRI Sukahaji
-                                </h2>
-                                <span style="font-size: 0.75rem; color: #94A3B8;">Portal Sistem Informasi Anggota</span>
+                                <h2 style="color: white; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 10px;"><i class="ph-fill ph-book-open" style="color: #D92B38;"></i> PGRI Sukahaji</h2>
+                                <span style="font-size: 0.75rem; color: #94A3B8;">Portal Anggota</span>
                             </div>
-
                             <div style="padding: 1.5rem 1rem; flex-grow: 1;">
                                 <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Menu Utama</p>
-                                
-                                <button onclick="bukaMenuDasbor('menu-beranda', this)" class="btn-sidebar active" style="width: 100%; text-align: left; padding: 12px 15px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 500; transition: 0.3s;">
-                                    <i class="ph ph-house" style="font-size: 1.2rem;"></i> Beranda
-                                </button>
-                                
-                                <button onclick="bukaMenuDasbor('menu-sakti', this)" class="btn-sidebar" style="width: 100%; text-align: left; padding: 12px 15px; background: transparent; color: #94A3B8; border: none; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 500; transition: 0.3s;">
-                                    <i class="ph ph-article" style="font-size: 1.2rem;"></i> SAKTI
-                                </button>
+                                <button onclick="bukaMenuDasbor('menu-beranda', this)" class="btn-sidebar active" style="width: 100%; text-align: left; padding: 12px 15px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 500; transition: 0.3s;"><i class="ph ph-house" style="font-size: 1.2rem;"></i> Beranda</button>
+                                <button onclick="bukaMenuDasbor('menu-sakti', this)" class="btn-sidebar" style="width: 100%; text-align: left; padding: 12px 15px; background: transparent; color: #94A3B8; border: none; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 500; transition: 0.3s;"><i class="ph ph-article" style="font-size: 1.2rem;"></i> SAKTI</button>
                             </div>
-
-                            <div style="padding: 1rem; text-align: center; border-top: 1px solid #334155; font-size: 0.75rem; color: #64748B;">
-                                &copy; 2026 PGRI Cabang Sukahaji
-                            </div>
+                            <div style="padding: 1rem; text-align: center; border-top: 1px solid #334155; font-size: 0.75rem; color: #64748B;">&copy; 2026 PGRI Sukahaji</div>
                         </div>
 
                         <!-- AREA KONTEN UTAMA (KANAN) -->
                         <div style="flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
-                            
                             <!-- TOPBAR -->
                             <div style="height: 65px; background: white; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem;">
                                 <div style="font-weight: 600; color: #64748B; display: flex; align-items: center; gap: 8px;">
-                                    <i class="ph-fill ph-list" style="font-size: 1.2rem; cursor: pointer;"></i> 
-                                    <span id="judul-topbar">Beranda - Publikasi</span>
+                                    <i class="ph-fill ph-list" style="font-size: 1.2rem;"></i> <span id="judul-topbar">Beranda - Publikasi</span>
                                 </div>
-
                                 <div style="position: relative; display: inline-block;">
                                     <button onclick="toggleDropdownProfil()" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 6px 15px 6px 6px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s;">
-                                        <div style="width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
-                                            ${user.nama.charAt(0)}
-                                        </div>
+                                        <div style="width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">${user.nama.charAt(0)}</div>
                                         <div style="text-align: left;">
                                             <div style="font-size: 0.85rem; font-weight: 700; color: #1E293B;">${user.nama.split(',')[0]}</div>
                                             <div style="font-size: 0.7rem; color: #64748B;">${user.role}</div>
                                         </div>
                                         <i class="ph ph-caret-down" style="color: #64748B; margin-left: 5px;"></i>
                                     </button>
-
                                     <div id="dropdownProfil" style="display: none; position: absolute; right: 0; top: 110%; background: white; min-width: 200px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; z-index: 100;">
-                                        <a href="#" onclick="alert('Fitur Edit Profil segera hadir')" style="display: block; padding: 12px 15px; color: #1E293B; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid #F1F5F9;">
-                                            <i class="ph ph-user" style="margin-right: 8px;"></i> Profil Saya
-                                        </a>
-                                        <a href="#" onclick="prosesLogout()" style="display: block; padding: 12px 15px; color: #D92B38; text-decoration: none; font-size: 0.9rem; background: #FFF0F1;">
-                                            <i class="ph ph-sign-out" style="margin-right: 8px;"></i> Keluar
-                                        </a>
+                                        <a href="#" onclick="alert('Fitur Profil segera hadir')" style="display: block; padding: 12px 15px; color: #1E293B; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid #F1F5F9;"><i class="ph ph-user" style="margin-right: 8px;"></i> Profil Saya</a>
+                                        <a href="#" onclick="prosesLogout()" style="display: block; padding: 12px 15px; color: #D92B38; text-decoration: none; font-size: 0.9rem; background: #FFF0F1;"><i class="ph ph-sign-out" style="margin-right: 8px;"></i> Keluar</a>
                                     </div>
                                 </div>
                             </div>
@@ -350,49 +193,153 @@
                             <div style="flex: 1; padding: 2rem; overflow-y: auto;">
                                 
                                 <div id="menu-beranda" class="dasbor-konten" style="display: block;">
-                                    <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                    <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0;">
                                         <h3 style="color: #1E293B; margin-bottom: 10px;">Linimasa Praktik Baik SAKTI</h3>
-                                        <p style="color: #64748B; font-size: 0.9rem;">(Feed gaya Facebook berisi daftar artikel dari seluruh anggota PGRI yang telah di-ACC akan muncul di sini).</p>
+                                        <p style="color: #64748B; font-size: 0.9rem;">(Feed gaya Facebook akan muncul di sini).</p>
                                     </div>
                                 </div>
 
                                 <div id="menu-sakti" class="dasbor-konten" style="display: none;">
-                                    <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 2rem;">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                                            <div>
-                                                <h3 style="color: #1E293B;">Pengajuan & Riwayat SAKTI</h3>
-                                                <p style="color: #64748B; font-size: 0.9rem;">Ajukan inovasi Anda dan pantau status publikasinya.</p>
+                                    
+                                    <!-- PANEL RIWAYAT -->
+                                    <div id="panel-riwayat" style="display:block;">
+                                        <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                                <div>
+                                                    <h3 style="color: #1E293B;">Pengajuan & Riwayat SAKTI</h3>
+                                                    <p style="color: #64748B; font-size: 0.9rem;">Pantau status publikasi inovasi Anda.</p>
+                                                </div>
+                                                <button onclick="toggleFormArtikel(true)" style="padding: 10px 15px; background: #D92B38; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                                    <i class="ph-bold ph-plus"></i> Buat Artikel Baru
+                                                </button>
                                             </div>
-                                            <button onclick="bukaFormArtikel()" style="padding: 10px 15px; background: #D92B38; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                                                <i class="ph-bold ph-plus"></i> Buat Artikel Baru
-                                            </button>
+                                            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                                                <thead style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+                                                    <tr>
+                                                        <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Tanggal</th>
+                                                        <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Judul Artikel</th>
+                                                        <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Kategori</th>
+                                                        <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr><td colspan="4" style="padding: 20px; text-align: center; color: #94A3B8; font-size: 0.9rem;">Belum ada artikel. (Menunggu integrasi GET API)</td></tr>
+                                                </tbody>
+                                            </table>
                                         </div>
-                                        <hr style="border: none; border-top: 1px solid #E2E8F0; margin-bottom: 20px;">
-                                        <p style="color: #64748B; font-size: 0.9rem;">(Form pengajuan dan tabel status "Draft/Approved" akan dimasukkan ke sini).</p>
+                                    </div>
+
+                                    <!-- PANEL FORM ARTIKEL -->
+                                    <div id="panel-form-artikel" style="display:none;">
+                                        <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #E2E8F0; padding-bottom: 15px;">
+                                                <h3 style="color: #1E293B;">Form Publikasi SAKTI</h3>
+                                                <button onclick="toggleFormArtikel(false)" style="padding: 6px 12px; background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1; border-radius: 6px; cursor: pointer;">Kembali</button>
+                                            </div>
+                                            
+                                            <form id="formArtikelSakti" onsubmit="submitArtikelSAKTI(event)">
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                                    <div>
+                                                        <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Nama Lengkap & Gelar</label>
+                                                        <input type="text" name="nama" value="${user.nama}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #64748B; cursor: not-allowed;">
+                                                    </div>
+                                                    <div>
+                                                        <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Jenjang Pendidikan</label>
+                                                        <input type="text" name="jenjang" value="${user.jenjang}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #64748B; cursor: not-allowed;">
+                                                    </div>
+                                                </div>
+
+                                                <div style="margin-bottom: 15px;">
+                                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Topik Inovasi (SAKTI)</label>
+                                                    <select name="kategori" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: white;">
+                                                        <option value="" disabled selected>-- Pilih Topik Utama --</option>
+                                                        <option value="Pembelajaran Mendalam">Pembelajaran Mendalam (Deep Learning)</option>
+                                                        <option value="Rumah Pendidikan">Pemanfaatan Rumah Pendidikan</option>
+                                                        <option value="PID">Papan Interaktif Digital (PID)</option>
+                                                        <option value="Koding/KKA">Koding / Kecerdasan Komputasional (KKA)</option>
+                                                    </select>
+                                                </div>
+
+                                                <div style="margin-bottom: 15px;">
+                                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Judul Artikel</label>
+                                                    <input type="text" name="judul" placeholder="Judul menarik..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                                </div>
+                                                <div style="margin-bottom: 15px;">
+                                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Abstraksi Singkat</label>
+                                                    <textarea name="abstraksi" placeholder="Ringkasan padat..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
+                                                </div>
+                                                <div style="margin-bottom: 15px;">
+                                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Situasi (S)</label>
+                                                    <textarea name="situasi" placeholder="Kondisi awal..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
+                                                </div>
+                                                <div style="margin-bottom: 15px;">
+                                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Tantangan (T)</label>
+                                                    <textarea name="tantangan" placeholder="Rintangan nyata..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
+                                                </div>
+                                                <div style="margin-bottom: 15px;">
+                                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Langkah Aksi (A)</label>
+                                                    <textarea name="aksi" placeholder="Narasi operasional..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
+                                                </div>
+                                                <div style="margin-bottom: 15px;">
+                                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Refleksi & Dampak (R)</label>
+                                                    <textarea name="refleksi" placeholder="Perubahan, umpan balik..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
+                                                </div>
+
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                                                    <div>
+                                                        <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Utama</label>
+                                                        <input type="url" name="link_foto" placeholder="https://drive..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                                    </div>
+                                                    <div>
+                                                        <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Dokumen</label>
+                                                        <input type="url" name="link_dokumen" placeholder="https://..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                                    </div>
+                                                </div>
+
+                                                <!-- Indikator Jumlah Kata -->
+                                                <div style="text-align: right; margin-bottom: 10px; font-size: 0.85rem; font-weight: 600; color: #64748B;">
+                                                    Total Kata: <span id="angka-kata">0</span> / 1500
+                                                </div>
+
+                                                <button type="submit" id="btnSubmitArtikel" style="width: 100%; padding: 12px; background: #D92B38; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.3s;">
+                                                    Kirim Artikel SAKTI
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             } else {
-                contentArea.innerHTML = `<h2 style="text-align:center; margin-top: 3rem;">Halaman ${viewName.toUpperCase()} sedang dalam pengembangan...</h2>`;
+                contentArea.innerHTML = `<h2 style="text-align:center; margin-top: 3rem;">Halaman dalam pengembangan...</h2>`;
             }
         }
 
-        // --- FUNGSI LOGIN (POST API) ---
+        // --- FUNGSI PENGHITUNG KATA REAL-TIME ---
+        document.addEventListener('input', function(e) {
+            if (e.target.closest('#formArtikelSakti')) {
+                const form = document.getElementById('formArtikelSakti');
+                const teksGabungan = `${form.abstraksi.value} ${form.situasi.value} ${form.tantangan.value} ${form.aksi.value} ${form.refleksi.value}`;
+                const jumlahKata = teksGabungan.trim().split(/\s+/).filter(word => word.length > 0).length;
+                
+                const spanAngka = document.getElementById('angka-kata');
+                if (spanAngka) {
+                    spanAngka.innerText = jumlahKata;
+                    spanAngka.style.color = jumlahKata > 1500 ? '#D92B38' : '#10B981'; 
+                }
+            }
+        });
+
+        // --- FUNGSI API & INTERAKSI ---
         async function prosesLogin(event) {
             event.preventDefault();
             const npa = document.getElementById('npa').value.trim();
             const pwd = document.getElementById('password').value.trim();
-            
             const btn = document.getElementById('btnLoginSubmit');
             const alertBox = document.getElementById('loginAlert');
             
-            btn.innerText = 'Memeriksa Data...';
-            btn.disabled = true;
-            alertBox.style.display = 'none';
+            btn.innerText = 'Memeriksa...'; btn.disabled = true; alertBox.style.display = 'none';
 
             try {
                 const response = await fetch(APPS_SCRIPT_URL, {
@@ -400,26 +347,68 @@
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: 'login', npa: npa, password: pwd })
                 });
-
                 const result = await response.json();
-
                 if (result.status === 'success') {
                     localStorage.setItem('userPGRI', JSON.stringify(result.data));
                     loadView('dashboard'); 
                 } else {
-                    alertBox.innerText = result.message;
-                    alertBox.style.display = 'block';
+                    alertBox.innerText = result.message; alertBox.style.display = 'block';
                 }
             } catch (error) {
-                alertBox.innerText = 'Gagal terhubung ke server. Periksa koneksi internet Anda.';
-                alertBox.style.display = 'block';
+                alertBox.innerText = 'Gagal terhubung server.'; alertBox.style.display = 'block';
             } finally {
-                btn.innerText = 'Masuk';
-                btn.disabled = false;
+                btn.innerText = 'Masuk'; btn.disabled = false;
             }
         }
 
-        // --- FUNGSI INTERAKTIF DASBOR ---
+        async function submitArtikelSAKTI(event) {
+            event.preventDefault();
+            const form = document.getElementById('formArtikelSakti');
+            
+            // Validasi Jumlah Kata
+            const teksGabungan = `${form.abstraksi.value} ${form.situasi.value} ${form.tantangan.value} ${form.aksi.value} ${form.refleksi.value}`;
+            const totalKata = teksGabungan.trim().split(/\s+/).filter(word => word.length > 0).length;
+            
+            if (totalKata > 1500) {
+                alert(`Mohon maaf, artikel Anda melebihi batas maksimal 1500 kata.\n(Saat ini: ${totalKata} kata).\n\nSilakan ringkas kembali narasi Anda sebelum mengirimkan.`);
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitArtikel');
+            btn.innerText = 'Mengirim Data... Mohon Tunggu...'; btn.disabled = true;
+
+            const dataObj = {
+                nama: form.nama.value, jenjang: form.jenjang.value,
+                kategori: form.kategori.value, judul: form.judul.value,
+                abstraksi: form.abstraksi.value, situasi: form.situasi.value,
+                tantangan: form.tantangan.value, aksi: form.aksi.value,
+                refleksi: form.refleksi.value, link_foto: form.link_foto.value,
+                link_dokumen: form.link_dokumen.value
+            };
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'submit_article', data: dataObj })
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('Berhasil! Artikel Anda terkirim dengan status "Draft" menunggu validasi Ketua.');
+                    form.reset();
+                    document.getElementById('angka-kata').innerText = '0';
+                    toggleFormArtikel(false);
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.innerText = 'Kirim Artikel SAKTI'; btn.disabled = false;
+            }
+        }
+
         function toggleDropdownProfil() {
             const dropdown = document.getElementById('dropdownProfil');
             dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
@@ -427,12 +416,8 @@
 
         function bukaMenuDasbor(idMenu, btnElement) {
             document.getElementById('judul-topbar').innerText = idMenu === 'menu-beranda' ? 'Beranda - Publikasi' : 'SAKTI - Pengajuan & Riwayat';
-
             const semuaKonten = document.getElementsByClassName('dasbor-konten');
-            for (let i = 0; i < semuaKonten.length; i++) {
-                semuaKonten[i].style.display = 'none';
-            }
-
+            for (let i = 0; i < semuaKonten.length; i++) semuaKonten[i].style.display = 'none';
             document.getElementById(idMenu).style.display = 'block';
 
             const semuaTombol = document.getElementsByClassName('btn-sidebar');
@@ -440,16 +425,14 @@
                 semuaTombol[i].style.background = 'transparent';
                 semuaTombol[i].style.color = '#94A3B8';
             }
-
-            btnElement.style.background = 'rgba(255,255,255,0.1)';
-            btnElement.style.color = 'white';
+            btnElement.style.background = 'rgba(255,255,255,0.1)'; btnElement.style.color = 'white';
         }
 
-        function bukaFormArtikel() {
-            alert("Sempurna! Tombol ini siap dihubungkan dengan Form HTML SAKTI kita pada tahap selanjutnya.");
+        function toggleFormArtikel(show) {
+            document.getElementById('panel-riwayat').style.display = show ? 'none' : 'block';
+            document.getElementById('panel-form-artikel').style.display = show ? 'block' : 'none';
         }
 
-        // Inisialisasi awal
         window.onload = () => loadView('beranda');
     </script>
 </body>

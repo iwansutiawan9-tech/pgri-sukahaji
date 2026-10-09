@@ -184,11 +184,19 @@
 
                             <div style="flex: 1; padding: 2rem; overflow-y: auto;">
                                 <div id="menu-beranda" class="dasbor-konten" style="display: block;">
-                                    <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0;">
-                                        <h3 style="color: #1E293B; margin-bottom: 10px;">Linimasa Praktik Baik SAKTI</h3>
-                                        <p style="color: #64748B; font-size: 0.9rem;">(Feed gaya Facebook akan muncul di sini).</p>
-                                    </div>
+                                    <div style="background: white; padding: 1.5rem 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                    <h3 style="color: #1E293B; margin-bottom: 5px;">Linimasa Praktik Baik SAKTI</h3>
+                                    <p style="color: #64748B; font-size: 0.9rem;">Temukan inspirasi inovasi dari rekan-rekan pendidik PGRI Sukahaji.</p>
                                 </div>
+    
+    <!-- Wadah untuk memuat postingan -->
+    <div id="feed-container">
+        <div style="text-align: center; padding: 2rem; color: #64748B;">
+            <i class="ph ph-spinner-gap ph-spin" style="font-size: 2rem; color: #D92B38;"></i>
+            <p>Memuat linimasa...</p>
+        </div>
+    </div>
+</div>
 
                                 <div id="menu-sakti" class="dasbor-konten" style="display: none;">
                                     <!-- PANEL RIWAYAT -->
@@ -302,7 +310,10 @@
                     </div>`;
                 
                 // Ambil data riwayat setiap kali dasbor dimuat
-                setTimeout(fetchRiwayat, 100);
+                setTimeout(() => {
+    fetchRiwayat();
+    fetchFeed();
+}, 100);
 
             } else {
                 contentArea.innerHTML = `<h2 style="text-align:center; margin-top: 3rem;">Halaman dalam pengembangan...</h2>`;
@@ -471,6 +482,66 @@
         }
 
         window.onload = () => loadView('beranda');
+        // --- FUNGSI MENARIK FEED SAKTI (GAYA FACEBOOK) ---
+async function fetchFeed() {
+    const container = document.getElementById('feed-container');
+    if(!container) return;
+
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'get_feed' })
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            if (result.data.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 3rem; background: white; border-radius: 12px; border: 1px dashed #CBD5E1; color: #94A3B8;">Belum ada artikel yang dipublikasikan.</div>';
+            } else {
+                let html = '';
+                result.data.forEach(item => {
+                    const inisial = item.nama.charAt(0).toUpperCase();
+                    // Struktur Postingan Gaya Facebook
+                    html += `
+                    <div style="background: white; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 1.5rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <!-- Header Postingan -->
+                        <div style="padding: 1rem 1.5rem; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #F1F5F9;">
+                            <div style="width: 45px; height: 45px; border-radius: 50%; background: #1E293B; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
+                                ${inisial}
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; color: #1E293B; font-size: 0.95rem;">${item.nama}</div>
+                                <div style="font-size: 0.75rem; color: #64748B;">${item.tanggal} • <span style="color: #D92B38; font-weight:600;">${item.kategori}</span> • ${item.jenjang}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Isi Konten Singkat -->
+                        <div style="padding: 1.5rem;">
+                            <h4 style="color: #1E293B; margin-bottom: 10px; font-size: 1.1rem;">${item.judul}</h4>
+                            <p style="color: #475569; font-size: 0.9rem; line-height: 1.6;">${item.abstraksi}</p>
+                            <a href="#" onclick="alert('Ini akan mengarahkan ke halaman publik artikel penuh.')" style="color: #D92B38; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-block; margin-top: 10px;">Lihat Selengkapnya &raquo;</a>
+                        </div>
+                        
+                        <!-- Menampilkan Foto (Jika link foto bukan sekadar tulisan dummy) -->
+                        ${item.link_foto && item.link_foto.startsWith('http') ? `<div style="width: 100%; height: 350px; background-color: #F1F5F9; background-image: url('${item.link_foto.replace('view?usp=sharing', 'preview')}'); background-size: cover; background-position: center; border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9;"></div>` : ''}
+                        
+                        <!-- Panel Interaksi (Like & Komen) -->
+                        <div style="padding: 1rem 1.5rem; background: #F8FAFC; display: flex; gap: 25px;">
+                            <button style="background: transparent; border: none; color: #64748B; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s;" onmouseover="this.style.color='#D92B38'" onmouseout="this.style.color='#64748B'"><i class="ph ph-thumbs-up" style="font-size: 1.2rem;"></i> Suka</button>
+                            <button style="background: transparent; border: none; color: #64748B; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s;" onmouseover="this.style.color='#D92B38'" onmouseout="this.style.color='#64748B'"><i class="ph ph-chat-circle" style="font-size: 1.2rem;"></i> Komentar</button>
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            }
+        } else {
+            container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Gagal memuat feed: ${result.message}</div>`;
+        }
+    } catch (error) {
+        container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Kesalahan jaringan saat memuat feed.</div>`;
+    }
+}
     </script>
 </body>
 </html>

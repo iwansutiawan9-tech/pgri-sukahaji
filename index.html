@@ -1,1 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PGRI Sukahaji - Membangun Ekosistem Digital Ciamis Tangguh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Menggunakan icon dari Phosphor Icons (ringan dan elegan) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        /* VARIABEL WARNA & DASAR */
+        :root {
+            --primary-red: #D92B38;
+            --dark-text: #1E293B;
+            --light-text: #64748B;
+            --bg-main: #F8FAFC;
+            --white: #FFFFFF;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--dark-text); -webkit-font-smoothing: antialiased; }
+
+        /* --- NAVBAR & NAVIGASI --- */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-red);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Navigasi Utama */
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--light-text);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-red);
+        }
+
+        /* Menu Dropdown SAKTI */
+        .dropdown { position: relative; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--white);
+            min-width: 220px;
+            box-shadow: var(--shadow-md);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            z-index: 10;
+        }
+        .dropdown:hover .dropdown-content { display: block; }
+        .dropdown-content a {
+            color: var(--light-text);
+            padding: 10px 20px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .dropdown-content a:hover {
+            background-color: #F1F5F9;
+            color: var(--primary-red);
+        }
+
+        /* Tombol Toggle Login (Pojok Kanan) */
+        .btn-login-toggle {
+            background: transparent;
+            border: 1px solid #E2E8F0;
+            color: var(--light-text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-login-toggle:hover {
+            background: var(--primary-red);
+            color: white;
+            border-color: var(--primary-red);
+        }
+
+        /* Menu HP (Hamburger) */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark-text);
+            cursor: pointer;
+        }
+
+        /* --- AREA KONTEN (VIEW CONTAINER) --- */
+        #app-content {
+            min-height: 80vh;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Responsivitas HP */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none; /* Sembunyikan menu di HP */
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--white);
+                padding: 1rem 2rem;
+                box-shadow: var(--shadow-md);
+            }
+            .nav-menu.show { display: flex; }
+            .hamburger { display: block; }
+            .dropdown-content { position: static; box-shadow: none; padding-left: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BAGIAN CONTROLLER: NAVIGASI -->
+    <header>
+        <nav class="navbar">
+            <!-- Logo -->
+            <a href="#" class="logo" onclick="loadView('beranda')">
+                <i class="ph-fill ph-book-open"></i> PGRI Sukahaji
+            </a>
+
+            <!-- Tombol Hamburger untuk HP -->
+            <button class="hamburger" id="btnHamburger">
+                <i class="ph ph-list"></i>
+            </button>
+
+            <!-- Daftar Menu -->
+            <ul class="nav-menu" id="navMenu">
+                <li><a class="nav-link" onclick="loadView('beranda')">Beranda</a></li>
+                <li><a class="nav-link" onclick="loadView('profil')">Profil</a></li>
+                
+                <!-- Dropdown SAKTI -->
+                <li class="dropdown">
+                    <a class="nav-link">SAKTI <i class="ph ph-caret-down"></i></a>
+                    <div class="dropdown-content">
+                        <a href="#">Pembelajaran Mendalam</a>
+                        <a href="#">Rumah Pendidikan</a>
+                        <a href="#">Papan Interaktif Digital</a>
+                        <a href="#">Koding / KKA</a>
+                        <a href="#">Praktik Baik Jenjang</a>
+                    </div>
+                </li>
+                
+                <li><a class="nav-link" onclick="loadView('galeri')">Galeri</a></li>
+                <li><a class="nav-link" onclick="loadView('kontak')">Kontak</a></li>
+                
+                <!-- Tombol rahasia/toggle untuk Login Anggota -->
+                <li>
+                    <button class="btn-login-toggle" onclick="loadView('login')" title="Portal Anggota">
+                        <i class="ph ph-user-circle"></i> <span style="font-size: 0.85rem;">Portal</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- BAGIAN VIEW: KONTEN HALAMAN AKAN MUNCUL DI SINI -->
+    <main id="app-content">
+        <!-- Default saat web dibuka: Menampilkan Loading atau langsung Beranda -->
+        <div style="text-align: center; margin-top: 5rem;">
+            <i class="ph ph-spinner-gap ph-spin" style="font-size: 3rem; color: var(--primary-red);"></i>
+            <p>Memuat Sistem PGRI...</p>
+        </div>
+    </main>
+
+    <!-- SCRIPT CONTROLLER (ROUTING) -->
+    <script>
+        // --- KONFIGURASI API ---
+// Ini adalah URL Web App Google Apps Script Anda
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTG0yPwSyNqlBdF-9L3Ts60r6raWcb-bk5CxdfOnnSZXHtg-2I3aNw9nFn0s9wwpildQ/exec';
+
+// --- FITUR TOGGLE HAMBURGER MENU (HP) ---
+const btnHamburger = document.getElementById('btnHamburger');
+const navMenu = document.getElementById('navMenu');
+
+btnHamburger.addEventListener('click', () => {
+    navMenu.classList.toggle('show');
+});
+
+// --- FUNGSI MANAJEMEN SESI (SESSION) ---
+function cekLogin() {
+    const user = localStorage.getItem('userPGRI');
+    return user ? JSON.parse(user) : null;
+}
+
+function prosesLogout() {
+    localStorage.removeItem('userPGRI');
+    alert('Anda telah berhasil keluar.');
+    loadView('beranda');
+}
+
+// --- FUNGSI ROUTING (Ubah Tampilan Halaman) ---
+function loadView(viewName) {
+    const contentArea = document.getElementById('app-content');
+    navMenu.classList.remove('show'); // Tutup menu HP
+    
+    const user = cekLogin(); // Cek apakah ada user yang sedang login
+
+    // Ubah tombol navigasi "Portal" berdasarkan status login
+    const btnPortal = document.querySelector('.btn-login-toggle');
+    if (user) {
+        btnPortal.innerHTML = `<i class="ph ph-user-circle"></i> <span style="font-size: 0.85rem;">Dasbor</span>`;
+        btnPortal.onclick = () => loadView('dashboard');
+    } else {
+        btnPortal.innerHTML = `<i class="ph ph-lock-key"></i> <span style="font-size: 0.85rem;">Portal</span>`;
+        btnPortal.onclick = () => loadView('login');
+    }
+
+    if (viewName === 'beranda') {
+        contentArea.innerHTML = `
+            <div style="text-align: center; margin-top: 3rem;">
+                <h1 style="font-size: 3rem; color: #1E293B;">Membangun Ekosistem Digital<br><span style="color: #D92B38;">Ciamis Tangguh</span></h1>
+                <p style="margin-top: 1rem; color: #64748B;">Selamat datang di portal SAKTI PGRI Cabang Sukahaji.</p>
+                <br>
+                <p style="color: #94A3B8; font-style: italic;">(Feed gaya Facebook akan muncul di sini)</p>
+            </div>
+        `;
+    } 
+    else if (viewName === 'login') {
+        // Jika sudah login, langsung lempar ke Dasbor
+        if (user) {
+            loadView('dashboard');
+            return;
+        }
+        contentArea.innerHTML = `
+            <div style="max-width: 400px; margin: 3rem auto; background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #E2E8F0;">
+                <h2 style="text-align: center; margin-bottom: 1.5rem; color: #D92B38;">Portal Anggota</h2>
+                <div id="loginAlert" style="display:none; padding: 10px; margin-bottom: 15px; background: #FEE2E2; color: #991B1B; border-radius: 6px; font-size: 0.85rem; text-align:center;"></div>
+                <form id="loginForm" onsubmit="prosesLogin(event)">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Nomor Pokok Anggota (NPA)</label>
+                        <input type="text" id="npa" placeholder="Contoh: 32070625811" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; font-family: inherit;">
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Kata Sandi</label>
+                        <input type="password" id="password" placeholder="Masukkan Sandi" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; font-family: inherit;">
+                    </div>
+                    <button type="submit" id="btnLoginSubmit" style="width: 100%; padding: 10px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.3s;">Masuk</button>
+                </form>
+            </div>
+        `;
+    }
+    else if (viewName === 'dashboard') {
+        // Halaman ini HANYA BISA DIAKSES jika sudah login
+        if (!user) {
+            alert('Akses ditolak. Silakan login terlebih dahulu.');
+            loadView('login');
+            return;
+        }
+        contentArea.innerHTML = `
+            <div style="max-width: 800px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #E2E8F0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 1rem;">
+                    <div>
+                        <h2 style="color: #1E293B;">Halo, ${user.nama}!</h2>
+                        <p style="color: #64748B; font-size: 0.9rem;">Jenjang: ${user.jenjang} | Hak Akses: <span style="color: #D92B38; font-weight: 600;">${user.role}</span></p>
+                    </div>
+                    <button onclick="prosesLogout()" style="background: #F1F5F9; border: 1px solid #CBD5E1; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; color: #1E293B;">Keluar</button>
+                </div>
+                
+                <!-- Ruang untuk fitur Dashboard (Form Artikel, dll) -->
+                <div id="dashboardArea">
+                    <p>Memuat menu dasbor...</p>
+                </div>
+            </div>
+        `;
+        
+        // Render menu sesuai Role
+        renderMenuDashboard(user);
+    }
+    else {
+        contentArea.innerHTML = `<h2 style="text-align:center; margin-top: 3rem;">Halaman ${viewName.toUpperCase()} sedang dalam pengembangan...</h2>`;
+    }
+}
+
+// --- FUNGSI LOGIN (POST KE APPS SCRIPT) ---
+async function prosesLogin(event) {
+    event.preventDefault();
+    const npa = document.getElementById('npa').value.trim();
+    const pwd = document.getElementById('password').value.trim();
+    
+    const btn = document.getElementById('btnLoginSubmit');
+    const alertBox = document.getElementById('loginAlert');
+    
+    // Ubah UI menjadi loading
+    btn.innerText = 'Memeriksa Data...';
+    btn.disabled = true;
+    alertBox.style.display = 'none';
+
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'login',
+                npa: npa,
+                password: pwd
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            // Simpan data login ke penyimpanan browser (Local Storage)
+            localStorage.setItem('userPGRI', JSON.stringify(result.data));
+            loadView('dashboard'); // Pindah ke Dasbor
+        } else {
+            alertBox.innerText = result.message;
+            alertBox.style.display = 'block';
+        }
+    } catch (error) {
+        alertBox.innerText = 'Gagal terhubung ke server. Periksa koneksi internet Anda.';
+        alertBox.style.display = 'block';
+    } finally {
+        // Kembalikan status tombol
+        btn.innerText = 'Masuk';
+        btn.disabled = false;
+    }
+}
+
+// --- FUNGSI RENDER MENU DASHBOARD ---
+function renderMenuDashboard(user) {
+    const area = document.getElementById('dashboardArea');
+    
+    // Nanti kita akan isi form pengajuan artikel di sini jika role-nya "Anggota"
+    // Dan panel ACC artikel jika role-nya "Ketua"
+    if (user.role === 'Ketua') {
+        area.innerHTML = `<button style="padding: 10px; background: #D92B38; color: white; border: none; border-radius: 6px; cursor: pointer;">Mulai Kurasi Artikel</button>`;
+    } else {
+        area.innerHTML = `<button onclick="bukaFormArtikel()" style="padding: 10px; background: #D92B38; color: white; border: none; border-radius: 6px; cursor: pointer;">+ Buat Artikel Praktik Baik</button>`;
+    }
+}
+
+function bukaFormArtikel() {
+    alert("Form artikel SAKTI akan dipasang di sini.");
+}
+
+// Inisialisasi awal saat web dimuat
+window.onload = () => loadView('beranda');
+    </script>
+</body>
+</html>

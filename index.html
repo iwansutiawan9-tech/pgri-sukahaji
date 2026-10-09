@@ -291,36 +291,110 @@ function loadView(viewName) {
         `;
     }
     else if (viewName === 'dashboard') {
-        // Halaman ini HANYA BISA DIAKSES jika sudah login
         if (!user) {
             alert('Akses ditolak. Silakan login terlebih dahulu.');
             loadView('login');
             return;
         }
+
+        // Tampilan Dasbor dengan Sistem Tab
         contentArea.innerHTML = `
-            <div style="max-width: 800px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #E2E8F0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 1rem;">
-                    <div>
-                        <h2 style="color: #1E293B;">Halo, ${user.nama}!</h2>
-                        <p style="color: #64748B; font-size: 0.9rem;">Jenjang: ${user.jenjang} | Hak Akses: <span style="color: #D92B38; font-weight: 600;">${user.role}</span></p>
-                    </div>
-                    <button onclick="prosesLogout()" style="background: #F1F5F9; border: 1px solid #CBD5E1; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; color: #1E293B;">Keluar</button>
-                </div>
+            <div style="max-width: 900px; margin: 2rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #E2E8F0; overflow: hidden;">
                 
-                <!-- Ruang untuk fitur Dashboard (Form Artikel, dll) -->
-                <div id="dashboardArea">
-                    <p>Memuat menu dasbor...</p>
+                <!-- Header Dasbor -->
+                <div style="background: #F8FAFC; padding: 2rem; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div id="fotoProfil" style="width: 60px; height: 60px; border-radius: 50%; background: #CBD5E1; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; font-weight: bold;">
+                            ${user.nama.charAt(0)}
+                        </div>
+                        <div>
+                            <h2 style="color: #1E293B; margin-bottom: 5px;">${user.nama}</h2>
+                            <p style="color: #64748B; font-size: 0.9rem;">NPA: ${user.npa} | Hak Akses: <span style="color: #D92B38; font-weight: 600;">${user.role}</span></p>
+                        </div>
+                    </div>
+                    <button onclick="prosesLogout()" style="background: white; border: 1px solid #CBD5E1; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; color: #1E293B; transition: 0.3s;">
+                        <i class="ph ph-sign-out"></i> Keluar
+                    </button>
+                </div>
+
+                <!-- Menu Navigasi Tab Dasbor -->
+                <div style="display: flex; border-bottom: 1px solid #E2E8F0; background: white;">
+                    <button class="tab-btn active" onclick="bukaTab(event, 'tabProfil')" style="padding: 15px 20px; border: none; background: transparent; font-weight: 600; color: #D92B38; border-bottom: 3px solid #D92B38; cursor: pointer; flex-grow: 1;">Profil & Biodata</button>
+                    <button class="tab-btn" onclick="bukaTab(event, 'tabArtikel')" style="padding: 15px 20px; border: none; background: transparent; font-weight: 600; color: #64748B; border-bottom: 3px solid transparent; cursor: pointer; flex-grow: 1;">Pengajuan SAKTI</button>
+                    ${user.role === 'Ketua' ? `<button class="tab-btn" onclick="bukaTab(event, 'tabKurasi')" style="padding: 15px 20px; border: none; background: transparent; font-weight: 600; color: #64748B; border-bottom: 3px solid transparent; cursor: pointer; flex-grow: 1;">Kurasi Ketua</button>` : ''}
+                </div>
+
+                <!-- Konten Tab -->
+                <div style="padding: 2rem;">
+                    
+                    <!-- 1. TAB PROFIL -->
+                    <div id="tabProfil" class="tab-content" style="display: block;">
+                        <h3 style="margin-bottom: 15px; color: #1E293B;">Data Profil Anggota</h3>
+                        <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Lengkapi data diri dan foto profil Anda di bawah ini.</p>
+                        
+                        <form id="formProfil">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Nama Lengkap (Sesuai Gelar)</label>
+                                    <input type="text" value="${user.nama}" style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9;" disabled>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Jenjang Mengajar</label>
+                                    <input type="text" value="${user.jenjang}" style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9;" disabled>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Profil (Google Drive)</label>
+                                <input type="url" placeholder="Paste link foto di sini..." style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                            </div>
+                            <!-- Tambahkan input biodata lain sesuai kebutuhan -->
+                            <button type="button" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan Profil</button>
+                        </form>
+                    </div>
+
+                    <!-- 2. TAB ARTIKEL SAKTI -->
+                    <div id="tabArtikel" class="tab-content" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div>
+                                <h3 style="color: #1E293B;">Ajukan Praktik Baik SAKTI</h3>
+                                <p style="color: #64748B; font-size: 0.9rem;">Bagikan inovasi Anda untuk diterbitkan di ekosistem SAKTI.</p>
+                            </div>
+                            <button onclick="alert('Ini akan memunculkan Form SAKTI yang sudah kita buat')" style="padding: 10px 15px; background: #10B981; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">+ Buat Artikel Baru</button>
+                        </div>
+                        
+                        <!-- Tabel Riwayat Pengajuan -->
+                        <div style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                                <thead style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+                                    <tr>
+                                        <th style="padding: 12px 15px; font-size: 0.85rem; color: #64748B;">Tanggal</th>
+                                        <th style="padding: 12px 15px; font-size: 0.85rem; color: #64748B;">Judul Artikel</th>
+                                        <th style="padding: 12px 15px; font-size: 0.85rem; color: #64748B;">Status</th>
+                                        <th style="padding: 12px 15px; font-size: 0.85rem; color: #64748B;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Nanti data riwayat diambil dari Apps Script -->
+                                    <tr>
+                                        <td colspan="4" style="padding: 20px; text-align: center; color: #94A3B8; font-size: 0.9rem;">Belum ada artikel yang diajukan.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. TAB KURASI (Khusus Ketua) -->
+                    <div id="tabKurasi" class="tab-content" style="display: none;">
+                        <h3 style="margin-bottom: 15px; color: #1E293B;">Panel Validasi Ketua</h3>
+                        <p style="color: #64748B; font-size: 0.9rem;">Daftar artikel yang menunggu persetujuan Anda.</p>
+                        <!-- Tabel khusus kurasi diletakkan di sini nanti -->
+                    </div>
+
                 </div>
             </div>
         `;
-        
-        // Render menu sesuai Role
-        renderMenuDashboard(user);
     }
-    else {
-        contentArea.innerHTML = `<h2 style="text-align:center; margin-top: 3rem;">Halaman ${viewName.toUpperCase()} sedang dalam pengembangan...</h2>`;
     }
-}
 
 // --- FUNGSI LOGIN (POST KE APPS SCRIPT) ---
 async function prosesLogin(event) {

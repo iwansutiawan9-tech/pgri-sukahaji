@@ -486,6 +486,36 @@ function bukaTab(event, namaTab) {
     event.currentTarget.style.color = '#D92B38';
     event.currentTarget.style.borderBottom = '3px solid #D92B38';
 }
+// --- FUNGSI INTERAKTIF DASBOR ---
+function toggleDropdownProfil() {
+    const dropdown = document.getElementById('dropdownProfil');
+    dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
+}
+
+function bukaMenuDasbor(idMenu, btnElement) {
+    // Ubah Judul Topbar
+    document.getElementById('judul-topbar').innerText = idMenu === 'menu-beranda' ? 'Beranda - Publikasi' : 'SAKTI - Pengajuan & Riwayat';
+
+    // Sembunyikan semua konten dasbor
+    const semuaKonten = document.getElementsByClassName('dasbor-konten');
+    for (let i = 0; i < semuaKonten.length; i++) {
+        semuaKonten[i].style.display = 'none';
+    }
+
+    // Tampilkan konten yang dipilih
+    document.getElementById(idMenu).style.display = 'block';
+
+    // Atur ulang gaya semua tombol sidebar
+    const semuaTombol = document.getElementsByClassName('btn-sidebar');
+    for (let i = 0; i < semuaTombol.length; i++) {
+        semuaTombol[i].style.background = 'transparent';
+        semuaTombol[i].style.color = '#94A3B8';
+    }
+
+    // Beri gaya pada tombol yang aktif (Sorotan putih transparan)
+    btnElement.style.background = 'rgba(255,255,255,0.1)';
+    btnElement.style.color = 'white';
+}
 window.onload = () => loadView('beranda');
     </script>
 </body>

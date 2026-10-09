@@ -17,29 +17,23 @@
             --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg-main); color: var(--dark-text); -webkit-font-smoothing: antialiased; }
-
         header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-sm); }
         .navbar { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.2rem; font-weight: 700; color: var(--primary-red); text-decoration: none; display: flex; align-items: center; gap: 10px; }
         .nav-menu { display: flex; gap: 2rem; list-style: none; align-items: center; }
         .nav-link { text-decoration: none; color: var(--light-text); font-weight: 600; font-size: 0.95rem; transition: color 0.3s; cursor: pointer; }
         .nav-link:hover, .nav-link.active { color: var(--primary-red); }
-
         .dropdown { position: relative; }
         .dropdown-content { display: none; position: absolute; top: 100%; left: 0; background-color: var(--white); min-width: 220px; box-shadow: var(--shadow-md); border-radius: 8px; padding: 0.5rem 0; z-index: 10; }
         .dropdown:hover .dropdown-content { display: block; }
         .dropdown-content a { color: var(--light-text); padding: 10px 20px; text-decoration: none; display: block; font-size: 0.9rem; font-weight: 500; }
         .dropdown-content a:hover { background-color: #F1F5F9; color: var(--primary-red); }
-
         .btn-login-toggle { background: transparent; border: 1px solid #E2E8F0; color: var(--light-text); padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.3s; }
         .btn-login-toggle:hover { background: var(--primary-red); color: white; border-color: var(--primary-red); }
         .hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--dark-text); cursor: pointer; }
-
         #app-content { min-height: 80vh; padding: 2rem; max-width: 1200px; margin: 0 auto; }
-
         @media (max-width: 768px) {
             .nav-menu { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background: var(--white); padding: 1rem 2rem; box-shadow: var(--shadow-md); }
             .nav-menu.show { display: flex; }
@@ -168,7 +162,6 @@
 
                         <!-- AREA KONTEN UTAMA (KANAN) -->
                         <div style="flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
-                            <!-- TOPBAR -->
                             <div style="height: 65px; background: white; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem;">
                                 <div style="font-weight: 600; color: #64748B; display: flex; align-items: center; gap: 8px;">
                                     <i class="ph-fill ph-list" style="font-size: 1.2rem;"></i> <span id="judul-topbar">Beranda - Publikasi</span>
@@ -189,9 +182,7 @@
                                 </div>
                             </div>
 
-                            <!-- KONTEN DINAMIS DASBOR -->
                             <div style="flex: 1; padding: 2rem; overflow-y: auto;">
-                                
                                 <div id="menu-beranda" class="dasbor-konten" style="display: block;">
                                     <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0;">
                                         <h3 style="color: #1E293B; margin-bottom: 10px;">Linimasa Praktik Baik SAKTI</h3>
@@ -200,7 +191,6 @@
                                 </div>
 
                                 <div id="menu-sakti" class="dasbor-konten" style="display: none;">
-                                    
                                     <!-- PANEL RIWAYAT -->
                                     <div id="panel-riwayat" style="display:block;">
                                         <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
@@ -222,8 +212,8 @@
                                                         <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Status</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
-                                                    <tr><td colspan="4" style="padding: 20px; text-align: center; color: #94A3B8; font-size: 0.9rem;">Belum ada artikel. (Menunggu integrasi GET API)</td></tr>
+                                                <tbody id="tabel-riwayat-body">
+                                                    <tr><td colspan="4" style="padding: 20px; text-align: center; color: #94A3B8; font-size: 0.9rem;"><i class="ph ph-spinner-gap ph-spin"></i> Memuat data...</td></tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -296,7 +286,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Indikator Jumlah Kata -->
                                                 <div style="text-align: right; margin-bottom: 10px; font-size: 0.85rem; font-weight: 600; color: #64748B;">
                                                     Total Kata: <span id="angka-kata">0</span> / 1500
                                                 </div>
@@ -311,6 +300,10 @@
                             </div>
                         </div>
                     </div>`;
+                
+                // Ambil data riwayat setiap kali dasbor dimuat
+                setTimeout(fetchRiwayat, 100);
+
             } else {
                 contentArea.innerHTML = `<h2 style="text-align:center; margin-top: 3rem;">Halaman dalam pengembangan...</h2>`;
             }
@@ -399,6 +392,7 @@
                     form.reset();
                     document.getElementById('angka-kata').innerText = '0';
                     toggleFormArtikel(false);
+                    fetchRiwayat(); // Otomatis muat ulang tabel setelah sukses
                 } else {
                     alert('Gagal: ' + result.message);
                 }
@@ -406,6 +400,49 @@
                 alert('Terjadi kesalahan jaringan.');
             } finally {
                 btn.innerText = 'Kirim Artikel SAKTI'; btn.disabled = false;
+            }
+        }
+
+        async function fetchRiwayat() {
+            const user = cekLogin();
+            if (!user) return;
+            const tbody = document.getElementById('tabel-riwayat-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #64748B;"><i class="ph ph-spinner-gap ph-spin"></i> Memuat riwayat...</td></tr>';
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'get_riwayat', nama: user.nama })
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    if (result.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #94A3B8;">Belum ada artikel yang diajukan.</td></tr>';
+                    } else {
+                        let html = '';
+                        result.data.forEach(item => {
+                            let statusBg = item.status === 'Approved' ? '#D1FAE5' : '#FEF3C7';
+                            let statusText = item.status === 'Approved' ? '#065F46' : '#92400E';
+                            html += `
+                                <tr style="border-bottom: 1px solid #E2E8F0;">
+                                    <td style="padding: 12px; font-size: 0.85rem; color: #64748B;">${item.tanggal}</td>
+                                    <td style="padding: 12px; font-size: 0.9rem; color: #1E293B; font-weight: 600;">${item.judul}</td>
+                                    <td style="padding: 12px; font-size: 0.85rem; color: #64748B;">${item.kategori}</td>
+                                    <td style="padding: 12px; font-size: 0.85rem;">
+                                        <span style="background: ${statusBg}; color: ${statusText}; padding: 4px 10px; border-radius: 20px; font-weight: 600;">${item.status}</span>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        tbody.innerHTML = html;
+                    }
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #D92B38;">Gagal memuat: ${result.message}</td></tr>`;
+                }
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #D92B38;">Kesalahan jaringan.</td></tr>`;
             }
         }
 

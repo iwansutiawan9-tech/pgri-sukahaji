@@ -1,1 +1,44 @@
+/* VARIABEL WARNA & DASAR */
+:root {
+    --primary-red: #D92B38;
+    --dark-text: #1E293B;
+    --light-text: #64748B;
+    --bg-main: #F8FAFC;
+    --white: #FFFFFF;
+    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
 
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+body { background-color: var(--bg-main); color: var(--dark-text); -webkit-font-smoothing: antialiased; }
+
+/* NAVBAR & NAVIGASI */
+header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-sm); }
+.navbar { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.2rem; font-weight: 700; color: var(--primary-red); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.nav-menu { display: flex; gap: 2rem; list-style: none; align-items: center; }
+.nav-link { text-decoration: none; color: var(--light-text); font-weight: 600; font-size: 0.95rem; transition: color 0.3s; cursor: pointer; }
+.nav-link:hover, .nav-link.active { color: var(--primary-red); }
+
+/* DROPDOWN MENU */
+.dropdown { position: relative; }
+.dropdown-content { display: none; position: absolute; top: 100%; left: 0; background-color: var(--white); min-width: 220px; box-shadow: var(--shadow-md); border-radius: 8px; padding: 0.5rem 0; z-index: 10; }
+.dropdown:hover .dropdown-content { display: block; }
+.dropdown-content a { color: var(--light-text); padding: 10px 20px; text-decoration: none; display: block; font-size: 0.9rem; font-weight: 500; }
+.dropdown-content a:hover { background-color: #F1F5F9; color: var(--primary-red); }
+
+/* TOMBOL LOGIN & HAMBURGER */
+.btn-login-toggle { background: transparent; border: 1px solid #E2E8F0; color: var(--light-text); padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; transition: all 0.3s; }
+.btn-login-toggle:hover { background: var(--primary-red); color: white; border-color: var(--primary-red); }
+.hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--dark-text); cursor: pointer; }
+
+/* AREA KONTEN */
+#app-content { min-height: 80vh; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+
+/* RESPONSIVITAS HP */
+@media (max-width: 768px) {
+    .nav-menu { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background: var(--white); padding: 1rem 2rem; box-shadow: var(--shadow-md); }
+    .nav-menu.show { display: flex; }
+    .hamburger { display: block; }
+    .dropdown-content { position: static; box-shadow: none; padding-left: 1rem; }
+}

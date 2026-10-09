@@ -459,6 +459,26 @@ function bukaFormArtikel() {
 }
 
 // Inisialisasi awal saat web dimuat
+// --- FUNGSI GANTI TAB DI DASBOR ---
+function bukaTab(event, namaTab) {
+    // Sembunyikan semua konten tab
+    const tabContents = document.getElementsByClassName('tab-content');
+    for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].style.display = 'none';
+    }
+
+    // Hilangkan class 'active' (garis merah) dari semua tombol tab
+    const tabBtns = document.getElementsByClassName('tab-btn');
+    for (let i = 0; i < tabBtns.length; i++) {
+        tabBtns[i].style.color = '#64748B';
+        tabBtns[i].style.borderBottom = '3px solid transparent';
+    }
+
+    // Tampilkan konten tab yang diklik dan beri garis merah pada tombolnya
+    document.getElementById(namaTab).style.display = 'block';
+    event.currentTarget.style.color = '#D92B38';
+    event.currentTarget.style.borderBottom = '3px solid #D92B38';
+}
 window.onload = () => loadView('beranda');
     </script>
 </body>

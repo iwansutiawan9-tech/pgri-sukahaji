@@ -297,99 +297,106 @@ function loadView(viewName) {
             return;
         }
 
-        // Tampilan Dasbor dengan Sistem Tab
+        // Tampilan Dasbor Full-Screen dengan Sidebar (Gaya Aplikasi Profesional)
         contentArea.innerHTML = `
-            <div style="max-width: 900px; margin: 2rem auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #E2E8F0; overflow: hidden;">
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #F1F5F9; z-index: 2000; display: flex; font-family: 'Plus Jakarta Sans', sans-serif;">
                 
-                <!-- Header Dasbor -->
-                <div style="background: #F8FAFC; padding: 2rem; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div id="fotoProfil" style="width: 60px; height: 60px; border-radius: 50%; background: #CBD5E1; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; font-weight: bold;">
-                            ${user.nama.charAt(0)}
-                        </div>
-                        <div>
-                            <h2 style="color: #1E293B; margin-bottom: 5px;">${user.nama}</h2>
-                            <p style="color: #64748B; font-size: 0.9rem;">NPA: ${user.npa} | Hak Akses: <span style="color: #D92B38; font-weight: 600;">${user.role}</span></p>
-                        </div>
-                    </div>
-                    <button onclick="prosesLogout()" style="background: white; border: 1px solid #CBD5E1; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; color: #1E293B; transition: 0.3s;">
-                        <i class="ph ph-sign-out"></i> Keluar
-                    </button>
-                </div>
-
-                <!-- Menu Navigasi Tab Dasbor -->
-                <div style="display: flex; border-bottom: 1px solid #E2E8F0; background: white;">
-                    <button class="tab-btn active" onclick="bukaTab(event, 'tabProfil')" style="padding: 15px 20px; border: none; background: transparent; font-weight: 600; color: #D92B38; border-bottom: 3px solid #D92B38; cursor: pointer; flex-grow: 1;">Profil & Biodata</button>
-                    <button class="tab-btn" onclick="bukaTab(event, 'tabArtikel')" style="padding: 15px 20px; border: none; background: transparent; font-weight: 600; color: #64748B; border-bottom: 3px solid transparent; cursor: pointer; flex-grow: 1;">Pengajuan SAKTI</button>
-                    ${user.role === 'Ketua' ? `<button class="tab-btn" onclick="bukaTab(event, 'tabKurasi')" style="padding: 15px 20px; border: none; background: transparent; font-weight: 600; color: #64748B; border-bottom: 3px solid transparent; cursor: pointer; flex-grow: 1;">Kurasi Ketua</button>` : ''}
-                </div>
-
-                <!-- Konten Tab -->
-                <div style="padding: 2rem;">
+                <!-- SIDEBAR KIRI -->
+                <div style="width: 260px; background: #1E293B; color: white; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.1);">
                     
-                    <!-- 1. TAB PROFIL -->
-                    <div id="tabProfil" class="tab-content" style="display: block;">
-                        <h3 style="margin-bottom: 15px; color: #1E293B;">Data Profil Anggota</h3>
-                        <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Lengkapi data diri dan foto profil Anda di bawah ini.</p>
+                    <!-- Logo Dasbor -->
+                    <div style="padding: 1.5rem; background: #0F172A; text-align: center; border-bottom: 1px solid #334155;">
+                        <h2 style="color: white; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class="ph-fill ph-book-open" style="color: #D92B38;"></i> PGRI Sukahaji
+                        </h2>
+                        <span style="font-size: 0.75rem; color: #94A3B8;">Portal Sistem Informasi Anggota</span>
+                    </div>
+
+                    <!-- Menu Navigasi Sidebar -->
+                    <div style="padding: 1.5rem 1rem; flex-grow: 1;">
+                        <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 10px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Menu Utama</p>
                         
-                        <form id="formProfil">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div>
-                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Nama Lengkap (Sesuai Gelar)</label>
-                                    <input type="text" value="${user.nama}" style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9;" disabled>
-                                </div>
-                                <div>
-                                    <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Jenjang Mengajar</label>
-                                    <input type="text" value="${user.jenjang}" style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9;" disabled>
-                                </div>
-                            </div>
-                            <div style="margin-bottom: 15px;">
-                                <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Profil (Google Drive)</label>
-                                <input type="url" placeholder="Paste link foto di sini..." style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
-                            </div>
-                            <!-- Tambahkan input biodata lain sesuai kebutuhan -->
-                            <button type="button" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan Profil</button>
-                        </form>
-                    </div>
-
-                    <!-- 2. TAB ARTIKEL SAKTI -->
-                    <div id="tabArtikel" class="tab-content" style="display: none;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <div>
-                                <h3 style="color: #1E293B;">Ajukan Praktik Baik SAKTI</h3>
-                                <p style="color: #64748B; font-size: 0.9rem;">Bagikan inovasi Anda untuk diterbitkan di ekosistem SAKTI.</p>
-                            </div>
-                            <button onclick="alert('Ini akan memunculkan Form SAKTI yang sudah kita buat')" style="padding: 10px 15px; background: #10B981; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">+ Buat Artikel Baru</button>
-                        </div>
+                        <button onclick="bukaMenuDasbor('menu-beranda', this)" class="btn-sidebar active" style="width: 100%; text-align: left; padding: 12px 15px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 500; transition: 0.3s;">
+                            <i class="ph ph-house" style="font-size: 1.2rem;"></i> Beranda
+                        </button>
                         
-                        <!-- Tabel Riwayat Pengajuan -->
-                        <div style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden;">
-                            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                                <thead style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
-                                    <tr>
-                                        <th style="padding: 12px 15px; font-size: 0.85rem; color: #64748B;">Tanggal</th>
-                                        <th style="padding: 12px 15px; font-size: 0.85rem; color: #64748B;">Judul Artikel</th>
-                                        <th style="padding: 12px 15px; font-size: 0.85rem; color: #64748B;">Status</th>
-                                        <th style="padding: 12px 15px; font-size: 0.85rem; color: #64748B;">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Nanti data riwayat diambil dari Apps Script -->
-                                    <tr>
-                                        <td colspan="4" style="padding: 20px; text-align: center; color: #94A3B8; font-size: 0.9rem;">Belum ada artikel yang diajukan.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <button onclick="bukaMenuDasbor('menu-sakti', this)" class="btn-sidebar" style="width: 100%; text-align: left; padding: 12px 15px; background: transparent; color: #94A3B8; border: none; border-radius: 8px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 500; transition: 0.3s;">
+                            <i class="ph ph-article" style="font-size: 1.2rem;"></i> SAKTI
+                        </button>
+                    </div>
+
+                    <!-- Info Versi -->
+                    <div style="padding: 1rem; text-align: center; border-top: 1px solid #334155; font-size: 0.75rem; color: #64748B;">
+                        &copy; 2026 PGRI Cabang Sukahaji
+                    </div>
+                </div>
+
+                <!-- AREA KONTEN UTAMA (KANAN) -->
+                <div style="flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+                    
+                    <!-- TOPBAR (Bilah Atas) -->
+                    <div style="height: 65px; background: white; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem;">
+                        
+                        <!-- Breadcrumb/Judul Aktif -->
+                        <div style="font-weight: 600; color: #64748B; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph-fill ph-list" style="font-size: 1.2rem; cursor: pointer;"></i> 
+                            <span id="judul-topbar">Beranda - Publikasi</span>
+                        </div>
+
+                        <!-- Dropdown Profil Kanan Atas -->
+                        <div style="position: relative; display: inline-block;">
+                            <button onclick="toggleDropdownProfil()" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 6px 15px 6px 6px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s;">
+                                <div style="width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
+                                    ${user.nama.charAt(0)}
+                                </div>
+                                <div style="text-align: left;">
+                                    <div style="font-size: 0.85rem; font-weight: 700; color: #1E293B;">${user.nama.split(',')[0]}</div>
+                                    <div style="font-size: 0.7rem; color: #64748B;">${user.role}</div>
+                                </div>
+                                <i class="ph ph-caret-down" style="color: #64748B; margin-left: 5px;"></i>
+                            </button>
+
+                            <!-- Isi Dropdown -->
+                            <div id="dropdownProfil" style="display: none; position: absolute; right: 0; top: 110%; background: white; min-width: 200px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; z-index: 100;">
+                                <a href="#" onclick="alert('Fitur Edit Profil segera hadir')" style="display: block; padding: 12px 15px; color: #1E293B; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid #F1F5F9;">
+                                    <i class="ph ph-user" style="margin-right: 8px;"></i> Profil Saya
+                                </a>
+                                <a href="#" onclick="prosesLogout()" style="display: block; padding: 12px 15px; color: #D92B38; text-decoration: none; font-size: 0.9rem; background: #FFF0F1;">
+                                    <i class="ph ph-sign-out" style="margin-right: 8px;"></i> Keluar
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 3. TAB KURASI (Khusus Ketua) -->
-                    <div id="tabKurasi" class="tab-content" style="display: none;">
-                        <h3 style="margin-bottom: 15px; color: #1E293B;">Panel Validasi Ketua</h3>
-                        <p style="color: #64748B; font-size: 0.9rem;">Daftar artikel yang menunggu persetujuan Anda.</p>
-                        <!-- Tabel khusus kurasi diletakkan di sini nanti -->
-                    </div>
+                    <!-- KONTEN DINAMIS DASBOR -->
+                    <div style="flex: 1; padding: 2rem; overflow-y: auto;">
+                        
+                        <!-- Konten Menu Beranda -->
+                        <div id="menu-beranda" class="dasbor-konten" style="display: block;">
+                            <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                <h3 style="color: #1E293B; margin-bottom: 10px;">Linimasa Praktik Baik SAKTI</h3>
+                                <p style="color: #64748B; font-size: 0.9rem;">(Feed gaya Facebook berisi daftar artikel dari seluruh anggota PGRI yang telah di-ACC akan muncul di sini).</p>
+                            </div>
+                        </div>
 
+                        <!-- Konten Menu SAKTI -->
+                        <div id="menu-sakti" class="dasbor-konten" style="display: none;">
+                            <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                    <div>
+                                        <h3 style="color: #1E293B;">Pengajuan & Riwayat SAKTI</h3>
+                                        <p style="color: #64748B; font-size: 0.9rem;">Ajukan inovasi Anda dan pantau status publikasinya.</p>
+                                    </div>
+                                    <button style="padding: 10px 15px; background: #D92B38; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                        <i class="ph-bold ph-plus"></i> Buat Artikel Baru
+                                    </button>
+                                </div>
+                                <hr style="border: none; border-top: 1px solid #E2E8F0; margin-bottom: 20px;">
+                                <p style="color: #64748B; font-size: 0.9rem;">(Form pengajuan dan tabel status "Draft/Approved" akan dimasukkan ke sini).</p>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         `;

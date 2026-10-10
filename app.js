@@ -16,6 +16,16 @@ function prosesLogout() {
     loadView('beranda');
 }
 
+// Helper: Mengubah Link GDrive menjadi Link Gambar Langsung
+function getDirectDriveLink(url) {
+    if (!url) return '';
+    const match = url.match(/\/d\/(.+?)\//);
+    if (match && match[1]) {
+        return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    }
+    return url;
+}
+
 // --- FUNGSI ROUTING UTAMA ---
 function loadView(viewName) {
     const contentArea = document.getElementById('app-content');
@@ -62,6 +72,11 @@ function loadView(viewName) {
     else if (viewName === 'dashboard') {
         if (!user) { alert('Silakan login terlebih dahulu.'); loadView('login'); return; }
 
+        // Render Avatar Dinamis (Gunakan foto jika ada, inisial jika tidak)
+        const avatarHTML = user.foto && user.foto.trim() !== '' 
+            ? `<img src="${getDirectDriveLink(user.foto)}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">` 
+            : `<div style="width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">${user.nama.charAt(0)}</div>`;
+
         contentArea.innerHTML = `
             <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #F1F5F9; z-index: 2000; display: flex; font-family: 'Plus Jakarta Sans', sans-serif;">
                 
@@ -87,9 +102,8 @@ function loadView(viewName) {
                             <i class="ph-fill ph-list" style="font-size: 1.2rem;"></i> <span id="judul-topbar">Beranda - Publikasi</span>
                         </div>
                         <div style="position: relative; display: inline-block;">
-                            <!-- Trigger Button dengan Penambahan event passing & ID -->
                             <button id="btn-profil-trigger" onclick="toggleDropdownProfil(event)" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 6px 15px 6px 6px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s;">
-                                <div style="width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">${user.nama.charAt(0)}</div>
+                                ${avatarHTML}
                                 <div style="text-align: left;">
                                     <div style="font-size: 0.85rem; font-weight: 700; color: #1E293B;">${user.nama.split(',')[0]}</div>
                                     <div style="font-size: 0.7rem; color: #64748B;">${user.role}</div>
@@ -97,7 +111,6 @@ function loadView(viewName) {
                                 <i class="ph ph-caret-down" style="color: #64748B; margin-left: 5px;"></i>
                             </button>
                             <div id="dropdownProfil" style="display: none; position: absolute; right: 0; top: 110%; background: white; min-width: 200px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; z-index: 100;">
-                                <!-- Mengaktifkan menu Profil Saya -->
                                 <a href="#" onclick="bukaProfil(); toggleDropdownProfil(event);" style="display: block; padding: 12px 15px; color: #1E293B; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid #F1F5F9;"><i class="ph ph-user" style="margin-right: 8px;"></i> Profil Saya</a>
                                 <a href="#" onclick="prosesLogout()" style="display: block; padding: 12px 15px; color: #D92B38; text-decoration: none; font-size: 0.9rem; background: #FFF0F1;"><i class="ph ph-sign-out" style="margin-right: 8px;"></i> Keluar</a>
                             </div>
@@ -228,12 +241,13 @@ function loadView(viewName) {
                             </div>
                         </div>
 
-                        <!-- MENU PROFIL SAYA (BARU) -->
+                        <!-- MENU PROFIL SAYA -->
                         <div id="menu-profil" class="dasbor-konten" style="display: none;">
                             <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
                                 <h3 style="color: #1E293B; margin-bottom: 15px;">Profil & Biodata</h3>
-                                <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Lengkapi data diri dan foto profil Anda (Fitur Simpan akan disiapkan di tahap berikutnya).</p>
-                                <form>
+                                <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Lengkapi data diri dan foto profil Anda.</p>
+                                <!-- Form Tersambung ke update API -->
+                                <form id="formProfil" onsubmit="submitProfil(event)">
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                         <div>
                                             <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Nama Lengkap</label>
@@ -246,9 +260,9 @@ function loadView(viewName) {
                                     </div>
                                     <div style="margin-bottom: 15px;">
                                         <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Profil (Google Drive)</label>
-                                        <input type="url" placeholder="Paste link foto di sini..." style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                        <input type="url" id="input-foto-profil" value="${user.foto || ''}" placeholder="Paste link foto di sini..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
                                     </div>
-                                    <button type="button" onclick="alert('Pembaruan profil belum tersambung ke backend.')" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan</button>
+                                    <button type="submit" id="btnSubmitProfil" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan</button>
                                 </form>
                             </div>
                         </div>
@@ -353,6 +367,42 @@ async function submitArtikelSAKTI(event) {
     finally { btn.innerText = 'Kirim Artikel SAKTI'; btn.disabled = false; }
 }
 
+// FUNGSI BARU: Mengirim pembaruan Profil ke API
+async function submitProfil(event) {
+    event.preventDefault();
+    const btn = document.getElementById('btnSubmitProfil');
+    const linkFoto = document.getElementById('input-foto-profil').value;
+    const user = cekLogin();
+
+    btn.innerText = 'Menyimpan...'; btn.disabled = true;
+
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'update_profil', npa: user.npa, link_foto: linkFoto })
+        });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            alert('Profil berhasil diperbarui!');
+            // Perbarui data foto di Local Storage agar awet
+            user.foto = result.data.link_foto;
+            localStorage.setItem('userPGRI', JSON.stringify(user));
+            
+            // Muat ulang dasbor untuk menerapkan avatar baru
+            loadView('dashboard');
+            bukaProfil(); // Kembali ke halaman profil
+        } else {
+            alert('Gagal: ' + result.message);
+        }
+    } catch (error) {
+        alert('Terjadi kesalahan jaringan.');
+    } finally {
+        btn.innerText = 'Simpan Pembaruan'; btn.disabled = false;
+    }
+}
+
 async function fetchRiwayat() {
     const user = cekLogin();
     if (!user) return;
@@ -416,7 +466,7 @@ async function fetchFeed() {
                             <p style="color: #475569; font-size: 0.9rem; line-height: 1.6;">${item.abstraksi}</p>
                             <a href="#" onclick="alert('Mengarahkan ke artikel penuh.')" style="color: #D92B38; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-block; margin-top: 10px;">Lihat Selengkapnya &raquo;</a>
                         </div>
-                        ${item.link_foto && item.link_foto.startsWith('http') ? `<div style="width: 100%; height: 350px; background-color: #F1F5F9; background-image: url('${item.link_foto.replace('view?usp=sharing', 'preview')}'); background-size: cover; background-position: center; border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9;"></div>` : ''}
+                        ${item.link_foto && item.link_foto.startsWith('http') ? `<div style="width: 100%; height: 350px; background-color: #F1F5F9; background-image: url('${getDirectDriveLink(item.link_foto)}'); background-size: cover; background-position: center; border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9;"></div>` : ''}
                         <div style="padding: 1rem 1.5rem; background: #F8FAFC; display: flex; gap: 25px;">
                             <button style="background: transparent; border: none; color: #64748B; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;"><i class="ph ph-thumbs-up" style="font-size: 1.2rem;"></i> Suka</button>
                             <button style="background: transparent; border: none; color: #64748B; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;"><i class="ph ph-chat-circle" style="font-size: 1.2rem;"></i> Komentar</button>
@@ -431,19 +481,18 @@ async function fetchFeed() {
 
 // --- FUNGSI UI DASBOR UTAMA ---
 function toggleDropdownProfil(event) {
-    if (event) event.stopPropagation(); // Mencegah klik terdeteksi oleh listener window
+    if (event) event.stopPropagation(); 
     const dropdown = document.getElementById('dropdownProfil');
     if (dropdown) {
         dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
     }
 }
 
-// Listener Global untuk "Click Outside to Close"
+// Listener Global untuk menutup dropdown saat klik di luar area
 window.addEventListener('click', function(e) {
     const dropdown = document.getElementById('dropdownProfil');
     const trigger = document.getElementById('btn-profil-trigger');
     if (dropdown && dropdown.style.display === 'block') {
-        // Tutup jika klik bukan di dalam dropdown dan bukan di dalam tombol trigger
         if (!dropdown.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
             dropdown.style.display = 'none';
         }
@@ -461,7 +510,6 @@ function bukaMenuDasbor(idMenu, btnElement) {
         semuaTombol[i].style.background = 'transparent';
         semuaTombol[i].style.color = '#94A3B8';
     }
-    // Jika dipanggil dari tombol sidebar (bukan dari dropdown), beri efek sorot
     if (btnElement) {
         btnElement.style.background = 'rgba(255,255,255,0.1)'; 
         btnElement.style.color = 'white';
@@ -469,14 +517,12 @@ function bukaMenuDasbor(idMenu, btnElement) {
 }
 
 function bukaProfil() {
-    // Sembunyikan konten lain, tampilkan menu profil
     const semuaKonten = document.getElementsByClassName('dasbor-konten');
     for (let i = 0; i < semuaKonten.length; i++) semuaKonten[i].style.display = 'none';
     
     document.getElementById('menu-profil').style.display = 'block';
     document.getElementById('judul-topbar').innerText = 'Profil - Data Pengguna';
 
-    // Matikan sorotan semua tombol sidebar
     const semuaTombol = document.getElementsByClassName('btn-sidebar');
     for (let i = 0; i < semuaTombol.length; i++) {
         semuaTombol[i].style.background = 'transparent';

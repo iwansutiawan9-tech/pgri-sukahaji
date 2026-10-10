@@ -475,6 +475,10 @@ async function fetchFeed() {
                 });
                 container.innerHTML = html;
             }
+            } else {
+            // TAMBAHAN BARU: Menampilkan pesan jika server membalas dengan error
+            container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Gagal memuat feed: ${result.message}</div>`;
+        }
         }
     } catch (error) { container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Kesalahan jaringan.</div>`; }
 }

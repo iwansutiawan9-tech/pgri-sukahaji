@@ -87,7 +87,8 @@ function loadView(viewName) {
                             <i class="ph-fill ph-list" style="font-size: 1.2rem;"></i> <span id="judul-topbar">Beranda - Publikasi</span>
                         </div>
                         <div style="position: relative; display: inline-block;">
-                            <button onclick="toggleDropdownProfil()" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 6px 15px 6px 6px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s;">
+                            <!-- Trigger Button dengan Penambahan event passing & ID -->
+                            <button id="btn-profil-trigger" onclick="toggleDropdownProfil(event)" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 6px 15px 6px 6px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s;">
                                 <div style="width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">${user.nama.charAt(0)}</div>
                                 <div style="text-align: left;">
                                     <div style="font-size: 0.85rem; font-weight: 700; color: #1E293B;">${user.nama.split(',')[0]}</div>
@@ -96,7 +97,8 @@ function loadView(viewName) {
                                 <i class="ph ph-caret-down" style="color: #64748B; margin-left: 5px;"></i>
                             </button>
                             <div id="dropdownProfil" style="display: none; position: absolute; right: 0; top: 110%; background: white; min-width: 200px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; z-index: 100;">
-                                <a href="#" onclick="alert('Fitur Profil segera hadir')" style="display: block; padding: 12px 15px; color: #1E293B; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid #F1F5F9;"><i class="ph ph-user" style="margin-right: 8px;"></i> Profil Saya</a>
+                                <!-- Mengaktifkan menu Profil Saya -->
+                                <a href="#" onclick="bukaProfil(); toggleDropdownProfil(event);" style="display: block; padding: 12px 15px; color: #1E293B; text-decoration: none; font-size: 0.9rem; border-bottom: 1px solid #F1F5F9;"><i class="ph ph-user" style="margin-right: 8px;"></i> Profil Saya</a>
                                 <a href="#" onclick="prosesLogout()" style="display: block; padding: 12px 15px; color: #D92B38; text-decoration: none; font-size: 0.9rem; background: #FFF0F1;"><i class="ph ph-sign-out" style="margin-right: 8px;"></i> Keluar</a>
                             </div>
                         </div>
@@ -121,7 +123,6 @@ function loadView(viewName) {
 
                         <!-- MENU SAKTI -->
                         <div id="menu-sakti" class="dasbor-konten" style="display: none;">
-                            <!-- PANEL RIWAYAT -->
                             <div id="panel-riwayat" style="display:block;">
                                 <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -149,7 +150,6 @@ function loadView(viewName) {
                                 </div>
                             </div>
 
-                            <!-- PANEL FORM ARTIKEL -->
                             <div id="panel-form-artikel" style="display:none;">
                                 <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #E2E8F0; padding-bottom: 15px;">
@@ -227,6 +227,32 @@ function loadView(viewName) {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- MENU PROFIL SAYA (BARU) -->
+                        <div id="menu-profil" class="dasbor-konten" style="display: none;">
+                            <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
+                                <h3 style="color: #1E293B; margin-bottom: 15px;">Profil & Biodata</h3>
+                                <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Lengkapi data diri dan foto profil Anda (Fitur Simpan akan disiapkan di tahap berikutnya).</p>
+                                <form>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                        <div>
+                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Nama Lengkap</label>
+                                            <input type="text" value="${user.nama}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #64748B;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Jenjang Mengajar</label>
+                                            <input type="text" value="${user.jenjang}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #64748B;">
+                                        </div>
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Profil (Google Drive)</label>
+                                        <input type="url" placeholder="Paste link foto di sini..." style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                    </div>
+                                    <button type="button" onclick="alert('Pembaruan profil belum tersambung ke backend.')" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan</button>
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>`;
@@ -404,10 +430,25 @@ async function fetchFeed() {
 }
 
 // --- FUNGSI UI DASBOR UTAMA ---
-function toggleDropdownProfil() {
+function toggleDropdownProfil(event) {
+    if (event) event.stopPropagation(); // Mencegah klik terdeteksi oleh listener window
     const dropdown = document.getElementById('dropdownProfil');
-    dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
+    if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
+    }
 }
+
+// Listener Global untuk "Click Outside to Close"
+window.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('dropdownProfil');
+    const trigger = document.getElementById('btn-profil-trigger');
+    if (dropdown && dropdown.style.display === 'block') {
+        // Tutup jika klik bukan di dalam dropdown dan bukan di dalam tombol trigger
+        if (!dropdown.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
+            dropdown.style.display = 'none';
+        }
+    }
+});
 
 function bukaMenuDasbor(idMenu, btnElement) {
     document.getElementById('judul-topbar').innerText = idMenu === 'menu-beranda' ? 'Beranda - Publikasi' : 'SAKTI - Pengajuan & Riwayat';
@@ -420,7 +461,27 @@ function bukaMenuDasbor(idMenu, btnElement) {
         semuaTombol[i].style.background = 'transparent';
         semuaTombol[i].style.color = '#94A3B8';
     }
-    btnElement.style.background = 'rgba(255,255,255,0.1)'; btnElement.style.color = 'white';
+    // Jika dipanggil dari tombol sidebar (bukan dari dropdown), beri efek sorot
+    if (btnElement) {
+        btnElement.style.background = 'rgba(255,255,255,0.1)'; 
+        btnElement.style.color = 'white';
+    }
+}
+
+function bukaProfil() {
+    // Sembunyikan konten lain, tampilkan menu profil
+    const semuaKonten = document.getElementsByClassName('dasbor-konten');
+    for (let i = 0; i < semuaKonten.length; i++) semuaKonten[i].style.display = 'none';
+    
+    document.getElementById('menu-profil').style.display = 'block';
+    document.getElementById('judul-topbar').innerText = 'Profil - Data Pengguna';
+
+    // Matikan sorotan semua tombol sidebar
+    const semuaTombol = document.getElementsByClassName('btn-sidebar');
+    for (let i = 0; i < semuaTombol.length; i++) {
+        semuaTombol[i].style.background = 'transparent';
+        semuaTombol[i].style.color = '#94A3B8';
+    }
 }
 
 function toggleFormArtikel(show) {

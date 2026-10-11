@@ -16,7 +16,6 @@ function prosesLogout() {
     loadView('beranda');
 }
 
-// Helper: Mengubah Link GDrive menjadi Link Gambar Langsung
 // Helper: Mengubah Link GDrive menjadi Link Gambar Langsung (Bypass Blokir Google)
 function getDirectDriveLink(url) {
     if (!url) return '';
@@ -77,7 +76,6 @@ function loadView(viewName) {
     else if (viewName === 'dashboard') {
         if (!user) { alert('Silakan login terlebih dahulu.'); loadView('login'); return; }
 
-        // Render Avatar Dinamis (Gunakan foto jika ada, inisial jika tidak)
         // Render Avatar Dinamis dengan Pelindung Error (Fallback)
         const inisialUser = user.nama ? user.nama.charAt(0).toUpperCase() : 'U';
         const avatarHTML = user.foto && user.foto.trim() !== '' 
@@ -248,7 +246,7 @@ function loadView(viewName) {
                             </div>
                         </div>
 
-                      <!-- MENU PROFIL SAYA -->
+                        <!-- MENU PROFIL SAYA -->
                         <div id="menu-profil" class="dasbor-konten" style="display: none;">
                             <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
                                 <h3 style="color: #1E293B; margin-bottom: 15px;">Profil & Biodata</h3>
@@ -257,12 +255,12 @@ function loadView(viewName) {
                                 <!-- Pratinjau Foto Profil Besar -->
                                 <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding: 15px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
                                     ${user.foto && user.foto.trim() !== '' 
-                                        ? `<img src="${getDirectDriveLink(user.foto)}" referrerpolicy="no-referrer" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #D92B38;">`
+                                        ? `<img src="${getDirectDriveLink(user.foto)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div style=\\'width: 80px; height: 80px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 2rem;\\'>${inisialUser}</div>'" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #D92B38;">`
                                         : `<div style="width: 80px; height: 80px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 2rem;">${inisialUser}</div>`
                                     }
                                     <div>
                                         <div style="font-weight: 700; color: #1E293B; font-size: 1.1rem;">${user.nama}</div>
-                                        <div style="font-size: 0.85rem; color: #64748B; margin-top: 4px;">NPA: ${user.npa} \vert{} Jenjang:${user.jenjang}</div>
+                                        <div style="font-size: 0.85rem; color: #64748B; margin-top: 4px;">NPA: ${user.npa} | Jenjang: ${user.jenjang}</div>
                                     </div>
                                 </div>
 
@@ -288,6 +286,10 @@ function loadView(viewName) {
                                 </form>
                             </div>
                         </div>
+
+                    </div>
+                </div>
+            </div>`;
         
         setTimeout(() => {
             fetchRiwayat();
@@ -453,25 +455,19 @@ async function fetchRiwayat() {
     } catch (error) { tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #D92B38;">Kesalahan jaringan.</td></tr>`; }
 }
 
-// --- FUNGSI MENARIK FEED SAKTI (VERSI SUPER DEBUG) ---
+// --- FUNGSI MENARIK FEED SAKTI ---
 async function fetchFeed() {
     const container = document.getElementById('feed-container');
     if(!container) return;
     
-    console.log("1. Fungsi fetchFeed mulai berjalan...");
-
     try {
-        console.log("2. Meminta data feed ke Apps Script...");
         const response = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: 'get_feed' })
         });
         
-        console.log("3. Menerima balasan, memproses data...");
         const text = await response.text(); 
-        console.log("4. Teks mentah dari server:", text); // CCTV isi data asli
-        
         const result = JSON.parse(text); 
 
         if (result.status === 'success') {
@@ -480,7 +476,6 @@ async function fetchFeed() {
             } else {
                 let html = '';
                 result.data.forEach(item => {
-                    // Pelindung jika ada kolom nama yang kosong di database
                     const namaAman = item.nama ? String(item.nama) : "Tanpa Nama";
                     const inisial = namaAman.charAt(0).toUpperCase();
                     
@@ -508,14 +503,13 @@ async function fetchFeed() {
                 container.innerHTML = html;
             }
         } else {
-            console.error("5. Server merespons error:", result.message);
             container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Gagal memuat: ${result.message}</div>`;
         }
     } catch (error) { 
-        console.error("6. Error Sistem/Browser:", error);
-        container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Terjadi masalah. Periksa tombol F12 (Console).</div>`; 
+        container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Terjadi masalah jaringan saat memuat linimasa.</div>`; 
     }
 }
+
 // --- FUNGSI UI DASBOR UTAMA ---
 function toggleDropdownProfil(event) {
     if (event) event.stopPropagation(); 

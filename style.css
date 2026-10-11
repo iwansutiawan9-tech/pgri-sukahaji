@@ -42,3 +42,92 @@ header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); pos
     .hamburger { display: block; }
     .dropdown-content { position: static; box-shadow: none; padding-left: 1rem; }
 }
+/* --- GAYA RICH TEXT EDITOR (ALA MS WORD) --- */
+.rte-container {
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #FFFFFF;
+    margin-bottom: 15px;
+    transition: border-color 0.2s;
+}
+.rte-container:focus-within {
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 3px rgba(217, 43, 56, 0.1);
+}
+.rte-toolbar {
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 6px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+.rte-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 5px 8px;
+    cursor: pointer;
+    color: #334155;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+.rte-btn:hover {
+    background: #E2E8F0;
+    color: var(--primary-red);
+}
+.rte-divider {
+    width: 1px;
+    height: 20px;
+    background: #CBD5E1;
+    margin: 0 4px;
+}
+.rte-editor {
+    padding: 12px 15px;
+    min-height: 110px;
+    max-height: 350px;
+    overflow-y: auto;
+    outline: none;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #1E293B;
+}
+.rte-editor:empty:before {
+    content: attr(data-placeholder);
+    color: #94A3B8;
+    font-style: italic;
+}
+.rte-editor ul, .rte-editor ol, .konten-artikel-penuh ul, .konten-artikel-penuh ol {
+    padding-left: 25px;
+    margin: 8px 0;
+}
+.rte-editor table, .konten-artikel-penuh table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+.rte-editor td, .rte-editor th, .konten-artikel-penuh td, .konten-artikel-penuh th {
+    border: 1px solid #CBD5E1;
+    padding: 8px;
+}
+
+/* --- TOMBOL AKSI TABEL RIWAYAT --- */
+.btn-aksi {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #E2E8F0;
+    background: #FFFFFF;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.2s;
+}
+.btn-aksi:hover { background: #F1F5F9; }

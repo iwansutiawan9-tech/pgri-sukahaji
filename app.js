@@ -19,12 +19,8 @@ function prosesLogout() {
 // Helper: Mengubah Link GDrive menjadi Link Gambar Langsung (Bypass Blokir Google)
 function getDirectDriveLink(url) {
     if (!url) return '';
-    
-    // Menangkap ID File dari berbagai variasi format link Google Drive
     const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-    
     if (match && match[1]) {
-        // Menggunakan endpoint thumbnail beresolusi tinggi (w1000) agar tidak diblokir browser
         return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
     }
     return url;
@@ -246,35 +242,72 @@ function loadView(viewName) {
                             </div>
                         </div>
 
-                        <!-- MENU PROFIL SAYA -->
+                        <!-- MENU PROFIL SAYA (DENGAN DATA LENGKAP) -->
                         <div id="menu-profil" class="dasbor-konten" style="display: none;">
                             <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
-                                <h3 style="color: #1E293B; margin-bottom: 15px;">Profil & Biodata</h3>
-                                <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Lengkapi data diri dan foto profil Anda.</p>
+                                <h3 style="color: #1E293B; margin-bottom: 5px;">Profil & Biodata Anggota</h3>
+                                <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Informasi resmi keanggotaan yang terdaftar di pangkalan data PGRI Cabang Sukahaji.</p>
                                 
-                                <!-- Pratinjau Foto Profil Besar -->
-                                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding: 15px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                <!-- Kartu Ringkasan & Foto Profil -->
+                                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding: 18px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
                                     ${user.foto && user.foto.trim() !== '' 
                                         ? `<img src="${getDirectDriveLink(user.foto)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div style=\\'width: 80px; height: 80px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 2rem;\\'>${inisialUser}</div>'" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #D92B38;">`
                                         : `<div style="width: 80px; height: 80px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 2rem;">${inisialUser}</div>`
                                     }
                                     <div>
-                                        <div style="font-weight: 700; color: #1E293B; font-size: 1.1rem;">${user.nama}</div>
-                                        <div style="font-size: 0.85rem; color: #64748B; margin-top: 4px;">NPA: ${user.npa} | Jenjang: ${user.jenjang}</div>
+                                        <div style="font-weight: 700; color: #1E293B; font-size: 1.2rem;">${user.nama || '-'}</div>
+                                        <div style="font-size: 0.85rem; color: #64748B; margin-top: 4px;">NPA: <b>${user.npa || '-'}</b> | Tempat Tugas: <b>${user.tempat_tugas || '-'}</b></div>
+                                        <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                            <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Role: ${user.role || '-'}</span>
+                                            <span style="background: #E0F2FE; color: #075985; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Status: ${user.pegawai || '-'}</span>
+                                            <span style="background: #F1F5F9; color: #475569; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">Sertifikat: ${user.sertifikat || '-'}</span>
+                                        </div>
                                     </div>
                                 </div>
 
+                                <!-- Form Detail Data Pengguna -->
                                 <form id="formProfil" onsubmit="submitProfil(event)">
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
                                         <div>
-                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Nama Lengkap</label>
-                                            <input type="text" value="${user.nama}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #64748B;">
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Nomor Pokok Anggota (NPA)</label>
+                                            <input type="text" value="${user.npa || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155; font-weight: 600;">
                                         </div>
                                         <div>
-                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Jenjang Mengajar</label>
-                                            <input type="text" value="${user.jenjang}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #64748B;">
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Nomor Induk Kependudukan (NIK)</label>
+                                            <input type="text" value="${user.nik || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Nama Lengkap & Gelar</label>
+                                            <input type="text" value="${user.nama || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Tempat Tugas</label>
+                                            <input type="text" value="${user.tempat_tugas || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Mata Pelajaran</label>
+                                            <input type="text" value="${user.mapel || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Sertifikat Pendidik</label>
+                                            <input type="text" value="${user.sertifikat || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Jenjang Mengajar</label>
+                                            <input type="text" value="${user.jenjang || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Status Pegawai</label>
+                                            <input type="text" value="${user.pegawai || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155;">
+                                        </div>
+                                        <div style="grid-column: 1 / -1;">
+                                            <label style="display:block; font-weight: 600; font-size: 0.82rem; color: #475569; margin-bottom: 5px;">Peran Sistem (Role)</label>
+                                            <input type="text" value="${user.role || '-'}" readonly style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F1F5F9; color: #334155;">
                                         </div>
                                     </div>
+
+                                    <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 20px 0;">
+
                                     <div style="margin-bottom: 15px;">
                                         <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Profil (Google Drive)</label>
                                         <input type="url" id="input-foto-profil" value="${user.foto || ''}" placeholder="https://drive.google.com/file/d/.../view?usp=sharing" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
@@ -282,7 +315,7 @@ function loadView(viewName) {
                                             <i class="ph-fill ph-info" style="color: #D92B38;"></i> <b>Penting:</b> Pastikan pengaturan berbagi (*Share*) file foto di Google Drive sudah diubah menjadi <b>"Siapa saja yang memiliki link" (Anyone with the link)</b>.
                                         </small>
                                     </div>
-                                    <button type="submit" id="btnSubmitProfil" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan</button>
+                                    <button type="submit" id="btnSubmitProfil" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan Foto</button>
                                 </form>
                             </div>
                         </div>
@@ -387,7 +420,6 @@ async function submitArtikelSAKTI(event) {
     finally { btn.innerText = 'Kirim Artikel SAKTI'; btn.disabled = false; }
 }
 
-// FUNGSI BARU: Mengirim pembaruan Profil ke API
 async function submitProfil(event) {
     event.preventDefault();
     const btn = document.getElementById('btnSubmitProfil');
@@ -406,20 +438,17 @@ async function submitProfil(event) {
 
         if (result.status === 'success') {
             alert('Profil berhasil diperbarui!');
-            // Perbarui data foto di Local Storage agar awet
             user.foto = result.data.link_foto;
             localStorage.setItem('userPGRI', JSON.stringify(user));
-            
-            // Muat ulang dasbor untuk menerapkan avatar baru
             loadView('dashboard');
-            bukaProfil(); // Kembali ke halaman profil
+            bukaProfil();
         } else {
             alert('Gagal: ' + result.message);
         }
     } catch (error) {
         alert('Terjadi kesalahan jaringan.');
     } finally {
-        btn.innerText = 'Simpan Pembaruan'; btn.disabled = false;
+        btn.innerText = 'Simpan Pembaruan Foto'; btn.disabled = false;
     }
 }
 
@@ -455,7 +484,6 @@ async function fetchRiwayat() {
     } catch (error) { tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #D92B38;">Kesalahan jaringan.</td></tr>`; }
 }
 
-// --- FUNGSI MENARIK FEED SAKTI ---
 async function fetchFeed() {
     const container = document.getElementById('feed-container');
     if(!container) return;
@@ -519,7 +547,6 @@ function toggleDropdownProfil(event) {
     }
 }
 
-// Listener Global untuk menutup dropdown saat klik di luar area
 window.addEventListener('click', function(e) {
     const dropdown = document.getElementById('dropdownProfil');
     const trigger = document.getElementById('btn-profil-trigger');

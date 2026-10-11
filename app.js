@@ -1,6 +1,10 @@
 // --- KONFIGURASI API ---
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTG0yPwSyNqlBdF-9L3Ts60r6raWcb-bk5CxdfOnnSZXHtg-2I3aNw9nFn0s9wwpildQ/exec';
 
+// Penyimpanan sementara di memori browser untuk keperluan Preview & Edit
+let daftarRiwayatUser = [];
+let daftarFeedPublik = [];
+
 document.getElementById('btnHamburger').addEventListener('click', () => {
     document.getElementById('navMenu').classList.toggle('show');
 });
@@ -24,6 +28,67 @@ function getDirectDriveLink(url) {
         return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
     }
     return url;
+}
+
+// Helper: Membuat Komponen Rich Text Editor (Ala MS Word)
+function buatRichEditor(id, label, placeholder) {
+    return `
+    <div style="margin-bottom: 18px;">
+        <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; color: #1E293B;">${label}</label>
+        <div class="rte-container">
+            <div class="rte-toolbar">
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'bold')" title="Tebal (Bold)"><i class="ph-bold ph-text-b"></i></button>
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'italic')" title="Miring (Italic)"><i class="ph-bold ph-text-italic"></i></button>
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'underline')" title="Garis Bawah (Underline)"><i class="ph-bold ph-text-underline"></i></button>
+                <div class="rte-divider"></div>
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'justifyLeft')" title="Rata Kiri"><i class="ph-bold ph-text-align-left"></i></button>
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'justifyCenter')" title="Rata Tengah"><i class="ph-bold ph-text-align-center"></i></button>
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'justifyRight')" title="Rata Kanan"><i class="ph-bold ph-text-align-right"></i></button>
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'justifyFull')" title="Rata Kiri-Kanan (Justify)"><i class="ph-bold ph-text-align-justify"></i></button>
+                <div class="rte-divider"></div>
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'insertUnorderedList')" title="Bullet List"><i class="ph-bold ph-list-bullets"></i></button>
+                <button type="button" class="rte-btn" onclick="formatTeks('${id}', 'insertOrderedList')" title="Numbering List"><i class="ph-bold ph-list-numbers"></i></button>
+                <div class="rte-divider"></div>
+                <button type="button" class="rte-btn" onclick="sisipTabel('${id}')" title="Sisipkan Tabel"><i class="ph-bold ph-table"></i></button>
+                <button type="button" class="rte-btn" onclick="sisipGambarDrive('${id}')" title="Sisipkan Gambar dari Google Drive"><i class="ph-bold ph-image"></i></button>
+            </div>
+            <div id="rte-${id}" class="rte-editor" contenteditable="true" data-placeholder="${placeholder}" oninput="hitungKataRealtime()"></div>
+        </div>
+    </div>`;
+}
+
+// Fungsi Eksekusi Toolbar MS Word
+function formatTeks(id, command, value = null) {
+    const editor = document.getElementById('rte-' + id);
+    editor.focus();
+    document.execCommand(command, false, value);
+    hitungKataRealtime();
+}
+
+function sisipTabel(id) {
+    const baris = prompt("Masukkan jumlah baris tabel:", "3");
+    const kolom = prompt("Masukkan jumlah kolom tabel:", "3");
+    if (baris && kolom && parseInt(baris) > 0 && parseInt(kolom) > 0) {
+        let htmlTabel = '<table style="width:100%; border-collapse: collapse; margin: 10px 0;"><tbody>';
+        for (let r = 0; r < parseInt(baris); r++) {
+            htmlTabel += '<tr>';
+            for (let c = 0; c < parseInt(kolom); c++) {
+                htmlTabel += `<td style="border: 1px solid #CBD5E1; padding: 8px;">${r === 0 ? '<b>Judul Kolom</b>' : 'Isi sel...'}</td>`;
+            }
+            htmlTabel += '</tr>';
+        }
+        htmlTabel += '</tbody></table><p><br></p>';
+        formatTeks(id, 'insertHTML', htmlTabel);
+    }
+}
+
+function sisipGambarDrive(id) {
+    const url = prompt("Tempelkan (Paste) Link Foto Google Drive di sini:\n(Pastikan akses foto sudah 'Siapa saja yang memiliki link')");
+    if (url && url.trim() !== '') {
+        const directUrl = getDirectDriveLink(url.trim());
+        const imgHtml = `<div style="text-align: center; margin: 12px 0;"><img src="${directUrl}" referrerpolicy="no-referrer" style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 1px solid #E2E8F0;"><br><small style="color: #64748B; font-style: italic;">Ketik keterangan gambar di sini...</small></div><p><br></p>`;
+        formatTeks(id, 'insertHTML', imgHtml);
+    }
 }
 
 // --- FUNGSI ROUTING UTAMA ---
@@ -72,7 +137,6 @@ function loadView(viewName) {
     else if (viewName === 'dashboard') {
         if (!user) { alert('Silakan login terlebih dahulu.'); loadView('login'); return; }
 
-        // Render Avatar Dinamis dengan Pelindung Error (Fallback)
         const inisialUser = user.nama ? user.nama.charAt(0).toUpperCase() : 'U';
         const avatarHTML = user.foto && user.foto.trim() !== '' 
             ? `<img src="${getDirectDriveLink(user.foto)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div style=\\'width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;\\'>${inisialUser}</div>'" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">` 
@@ -142,36 +206,46 @@ function loadView(viewName) {
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                         <div>
                                             <h3 style="color: #1E293B;">Pengajuan & Riwayat SAKTI</h3>
-                                            <p style="color: #64748B; font-size: 0.9rem;">Pantau status publikasi inovasi Anda.</p>
+                                            <p style="color: #64748B; font-size: 0.9rem;">Kelola draf, pratinjau, edit, dan pantau status publikasi inovasi Anda.</p>
                                         </div>
-                                        <button onclick="toggleFormArtikel(true)" style="padding: 10px 15px; background: #D92B38; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                        <button onclick="bukaFormBuatBaru()" style="padding: 10px 15px; background: #D92B38; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                                             <i class="ph-bold ph-plus"></i> Buat Artikel Baru
                                         </button>
                                     </div>
-                                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                                        <thead style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
-                                            <tr>
-                                                <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Tanggal</th>
-                                                <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Judul Artikel</th>
-                                                <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Kategori</th>
-                                                <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tabel-riwayat-body">
-                                            <tr><td colspan="4" style="padding: 20px; text-align: center; color: #94A3B8; font-size: 0.9rem;"><i class="ph ph-spinner-gap ph-spin"></i> Memuat data...</td></tr>
-                                        </tbody>
-                                    </table>
+                                    <div style="overflow-x: auto;">
+                                        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                                            <thead style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+                                                <tr>
+                                                    <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Tanggal</th>
+                                                    <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Judul Artikel</th>
+                                                    <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Kategori</th>
+                                                    <th style="padding: 12px; font-size: 0.85rem; color: #64748B;">Status</th>
+                                                    <th style="padding: 12px; font-size: 0.85rem; color: #64748B; text-align: right;">Tindakan (Aksi)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tabel-riwayat-body">
+                                                <tr><td colspan="5" style="padding: 20px; text-align: center; color: #94A3B8; font-size: 0.9rem;"><i class="ph ph-spinner-gap ph-spin"></i> Memuat data...</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
 
+                            <!-- PANEL FORM ARTIKEL (DENGAN RICH TEXT EDITOR) -->
                             <div id="panel-form-artikel" style="display:none;">
                                 <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #E2E8F0; padding-bottom: 15px;">
-                                        <h3 style="color: #1E293B;">Form Publikasi SAKTI</h3>
-                                        <button onclick="toggleFormArtikel(false)" style="padding: 6px 12px; background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1; border-radius: 6px; cursor: pointer;">Kembali</button>
+                                        <div>
+                                            <h3 id="judul-form-sakti" style="color: #1E293B;">Form Publikasi SAKTI</h3>
+                                            <small id="subjudul-form-sakti" style="color: #64748B;">Gunakan bilah alat (toolbar) di setiap kotak untuk memformat tulisan layaknya MS Word.</small>
+                                        </div>
+                                        <button type="button" onclick="toggleFormArtikel(false)" style="padding: 6px 12px; background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1; border-radius: 6px; cursor: pointer; font-weight: 600;">Kembali</button>
                                     </div>
                                     
-                                    <form id="formArtikelSakti" onsubmit="submitArtikelSAKTI(event)">
+                                    <form id="formArtikelSakti" onsubmit="event.preventDefault();">
+                                        <!-- Penyimpan ID Baris jika dalam Mode Edit -->
+                                        <input type="hidden" id="edit-row-id" value="">
+
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                             <div>
                                                 <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Nama Lengkap & Gelar</label>
@@ -185,7 +259,7 @@ function loadView(viewName) {
 
                                         <div style="margin-bottom: 15px;">
                                             <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Topik Inovasi (SAKTI)</label>
-                                            <select name="kategori" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: white;">
+                                            <select name="kategori" id="input-kategori" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: white;">
                                                 <option value="" disabled selected>-- Pilih Topik Utama --</option>
                                                 <option value="Pembelajaran Mendalam">Pembelajaran Mendalam (Deep Learning)</option>
                                                 <option value="Rumah Pendidikan">Pemanfaatan Rumah Pendidikan</option>
@@ -194,61 +268,56 @@ function loadView(viewName) {
                                             </select>
                                         </div>
 
-                                        <div style="margin-bottom: 15px;">
-                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Judul Artikel</label>
-                                            <input type="text" name="judul" placeholder="Judul menarik..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                        <div style="margin-bottom: 18px;">
+                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Judul Artikel Praktik Baik</label>
+                                            <input type="text" name="judul" id="input-judul" placeholder="Ketikkan judul inovasi yang menarik..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; font-weight: 600;">
                                         </div>
-                                        <div style="margin-bottom: 15px;">
-                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Abstraksi Singkat</label>
-                                            <textarea name="abstraksi" placeholder="Ringkasan padat..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
-                                        </div>
-                                        <div style="margin-bottom: 15px;">
-                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Situasi (S)</label>
-                                            <textarea name="situasi" placeholder="Kondisi awal..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
-                                        </div>
-                                        <div style="margin-bottom: 15px;">
-                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Tantangan (T)</label>
-                                            <textarea name="tantangan" placeholder="Rintangan nyata..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
-                                        </div>
-                                        <div style="margin-bottom: 15px;">
-                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Langkah Aksi (A)</label>
-                                            <textarea name="aksi" placeholder="Narasi operasional..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
-                                        </div>
-                                        <div style="margin-bottom: 15px;">
-                                            <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Refleksi & Dampak (R)</label>
-                                            <textarea name="refleksi" placeholder="Perubahan, umpan balik..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px; min-height: 60px; font-family: inherit;"></textarea>
-                                        </div>
+
+                                        <!-- 5 Kotak Rich Text Editor Ala MS Word -->
+                                        ${buatRichEditor('abstraksi', 'Abstraksi Singkat', 'Tuliskan ringkasan padat mengenai praktik baik ini...')}
+                                        ${buatRichEditor('situasi', 'Situasi (S)', 'Paparkan kondisi awal / latar belakang masalah...')}
+                                        ${buatRichEditor('tantangan', 'Tantangan (T)', 'Jelaskan rintangan nyata yang dihadapi...')}
+                                        ${buatRichEditor('aksi', 'Langkah Aksi (A)', 'Uraikan strategi dan langkah operasional yang dilakukan (Anda bisa menyisipkan tabel atau foto di sini)...')}
+                                        ${buatRichEditor('refleksi', 'Refleksi & Dampak (R)', 'Tuliskan hasil perubahan, dampak pada murid, dan refleksi...')}
 
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                                             <div>
-                                                <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Utama</label>
-                                                <input type="url" name="link_foto" placeholder="https://drive..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                                <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Sampul Utama (Google Drive)</label>
+                                                <input type="url" name="link_foto" id="input-link-foto" placeholder="https://drive.google.com/file/d/..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
                                             </div>
                                             <div>
-                                                <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Dokumen</label>
-                                                <input type="url" name="link_dokumen" placeholder="https://..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                                <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Dokumen Bukti Karya / Modul (Google Drive)</label>
+                                                <input type="url" name="link_dokumen" id="input-link-dokumen" placeholder="https://drive.google.com/file/d/..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
                                             </div>
                                         </div>
 
-                                        <div style="text-align: right; margin-bottom: 10px; font-size: 0.85rem; font-weight: 600; color: #64748B;">
-                                            Total Kata: <span id="angka-kata">0</span> / 1500
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px 15px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
+                                            <span style="font-size: 0.82rem; color: #64748B;"><i class="ph-fill ph-info" style="color: #0284C7;"></i> Mengedit artikel yang sudah tayang akan mengembalikan statusnya menjadi <b>Menunggu Persetujuan</b>.</span>
+                                            <div style="font-size: 0.88rem; font-weight: 700; color: #64748B;">
+                                                Total Kata: <span id="angka-kata" style="color: #10B981;">0</span> / 1500
+                                            </div>
                                         </div>
 
-                                        <button type="submit" id="btnSubmitArtikel" style="width: 100%; padding: 12px; background: #D92B38; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.3s;">
-                                            Kirim Artikel SAKTI
-                                        </button>
+                                        <!-- Dua Tombol Aksi: Simpan Draf & Ajukan Publikasi -->
+                                        <div style="display: flex; gap: 15px;">
+                                            <button type="button" id="btnSimpanDraft" onclick="prosesSimpanArtikel('Draft')" style="flex: 1; padding: 12px; background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;">
+                                                <i class="ph-bold ph-floppy-disk"></i> Simpan sebagai Draf
+                                            </button>
+                                            <button type="button" id="btnSubmitArtikel" onclick="prosesSimpanArtikel('Pending')" style="flex: 2; padding: 12px; background: #D92B38; color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;">
+                                                <i class="ph-bold ph-paper-plane-tilt"></i> Ajukan Publikasi (Kirim ke Ketua)
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- MENU PROFIL SAYA (DENGAN DATA LENGKAP) -->
+                        <!-- MENU PROFIL SAYA -->
                         <div id="menu-profil" class="dasbor-konten" style="display: none;">
                             <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
                                 <h3 style="color: #1E293B; margin-bottom: 5px;">Profil & Biodata Anggota</h3>
                                 <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Informasi resmi keanggotaan yang terdaftar di pangkalan data PGRI Cabang Sukahaji.</p>
                                 
-                                <!-- Kartu Ringkasan & Foto Profil -->
                                 <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding: 18px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
                                     ${user.foto && user.foto.trim() !== '' 
                                         ? `<img src="${getDirectDriveLink(user.foto)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div style=\\'width: 80px; height: 80px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 2rem;\\'>${inisialUser}</div>'" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #D92B38;">`
@@ -265,7 +334,6 @@ function loadView(viewName) {
                                     </div>
                                 </div>
 
-                                <!-- Form Detail Data Pengguna -->
                                 <form id="formProfil" onsubmit="submitProfil(event)">
                                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
                                         <div>
@@ -312,7 +380,7 @@ function loadView(viewName) {
                                         <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Profil (Google Drive)</label>
                                         <input type="url" id="input-foto-profil" value="${user.foto || ''}" placeholder="https://drive.google.com/file/d/.../view?usp=sharing" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
                                         <small style="display:block; margin-top: 6px; color: #64748B; font-size: 0.78rem;">
-                                            <i class="ph-fill ph-info" style="color: #D92B38;"></i> <b>Penting:</b> Pastikan pengaturan berbagi (*Share*) file foto di Google Drive sudah diubah menjadi <b>"Siapa saja yang memiliki link" (Anyone with the link)</b>.
+                                            <i class="ph-fill ph-info" style="color: #D92B38;"></i> <b>Penting:</b> Pastikan pengaturan berbagi (*Share*) file foto di Google Drive sudah diubah menjadi <b>"Siapa saja yang memiliki link"</b>.
                                         </small>
                                     </div>
                                     <button type="submit" id="btnSubmitProfil" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan Foto</button>
@@ -322,6 +390,19 @@ function loadView(viewName) {
 
                     </div>
                 </div>
+
+                <!-- MODAL PREVIEW ARTIKEL PENUH -->
+                <div id="modal-preview" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); z-index: 3000; align-items: center; justify-content: center; padding: 1.5rem;">
+                    <div style="background: white; width: 100%; max-width: 850px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
+                        <div style="padding: 1rem 1.5rem; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 700; color: #1E293B; display: flex; align-items: center; gap: 8px;"><i class="ph-fill ph-book-open" style="color: #D92B38;"></i> Pratinjau Artikel SAKTI</span>
+                            <button onclick="tutupModalPreview()" style="background: #FEE2E2; color: #D92B38; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center;"><i class="ph-bold ph-x"></i></button>
+                        </div>
+                        <div id="isi-modal-preview" class="konten-artikel-penuh" style="padding: 2rem; overflow-y: auto; line-height: 1.7; color: #334155;">
+                        </div>
+                    </div>
+                </div>
+
             </div>`;
         
         setTimeout(() => {
@@ -334,22 +415,212 @@ function loadView(viewName) {
     }
 }
 
-// --- FUNGSI PENGHITUNG KATA REAL-TIME ---
-document.addEventListener('input', function(e) {
-    if (e.target.closest('#formArtikelSakti')) {
-        const form = document.getElementById('formArtikelSakti');
-        const teksGabungan = `${form.abstraksi.value} ${form.situasi.value} ${form.tantangan.value} ${form.aksi.value} ${form.refleksi.value}`;
-        const jumlahKata = teksGabungan.trim().split(/\s+/).filter(word => word.length > 0).length;
-        
-        const spanAngka = document.getElementById('angka-kata');
-        if (spanAngka) {
-            spanAngka.innerText = jumlahKata;
-            spanAngka.style.color = jumlahKata > 1500 ? '#D92B38' : '#10B981'; 
+// --- FUNGSI PENGHITUNG KATA REAL-TIME (MENGABAIKAN TAG HTML) ---
+function hitungKataRealtime() {
+    const ids = ['abstraksi', 'situasi', 'tantangan', 'aksi', 'refleksi'];
+    let gabunganTeksMurni = '';
+    ids.forEach(id => {
+        const el = document.getElementById('rte-' + id);
+        if (el) gabunganTeksMurni += ' ' + (el.innerText || '');
+    });
+    const jumlahKata = gabunganTeksMurni.trim().split(/\s+/).filter(w => w.length > 0).length;
+    const spanAngka = document.getElementById('angka-kata');
+    if (spanAngka) {
+        spanAngka.innerText = jumlahKata;
+        spanAngka.style.color = jumlahKata > 1500 ? '#D92B38' : '#10B981';
+    }
+    return jumlahKata;
+}
+
+// --- FUNGSI BUKA FORM BUAT BARU VS EDIT ---
+function bukaFormBuatBaru() {
+    document.getElementById('formArtikelSakti').reset();
+    document.getElementById('edit-row-id').value = '';
+    ['abstraksi', 'situasi', 'tantangan', 'aksi', 'refleksi'].forEach(id => {
+        document.getElementById('rte-' + id).innerHTML = '';
+    });
+    document.getElementById('judul-form-sakti').innerText = 'Buat Artikel Praktik Baik Baru';
+    hitungKataRealtime();
+    toggleFormArtikel(true);
+}
+
+function bukaEditRiwayat(index) {
+    const item = daftarRiwayatUser[index];
+    if (!item) return;
+
+    document.getElementById('edit-row-id').value = item.row_id;
+    document.getElementById('input-kategori').value = item.kategori || '';
+    document.getElementById('input-judul').value = item.judul || '';
+    document.getElementById('input-link-foto').value = item.link_foto || '';
+    document.getElementById('input-link-dokumen').value = item.link_dokumen || '';
+
+    document.getElementById('rte-abstraksi').innerHTML = item.abstraksi || '';
+    document.getElementById('rte-situasi').innerHTML = item.situasi || '';
+    document.getElementById('rte-tantangan').innerHTML = item.tantangan || '';
+    document.getElementById('rte-aksi').innerHTML = item.aksi || '';
+    document.getElementById('rte-refleksi').innerHTML = item.refleksi || '';
+
+    document.getElementById('judul-form-sakti').innerText = 'Edit Artikel: ' + item.judul;
+    hitungKataRealtime();
+    toggleFormArtikel(true);
+}
+
+// --- FUNGSI SIMPAN / AJUKAN ARTIKEL (BARU MAUPUN EDIT) ---
+async function prosesSimpanArtikel(statusTujuan) {
+    const form = document.getElementById('formArtikelSakti');
+    const rowId = document.getElementById('edit-row-id').value;
+    const totalKata = hitungKataRealtime();
+
+    if (!form.judul.value.trim() || !form.kategori.value) {
+        alert('Mohon lengkapi minimal Topik Inovasi dan Judul Artikel terlebih dahulu.');
+        return;
+    }
+
+    if (statusTujuan === 'Pending') {
+        if (totalKata === 0) {
+            alert('Isi narasi artikel tidak boleh kosong saat diajukan.');
+            return;
+        }
+        if (totalKata > 1500) {
+            alert(`Mohon maaf, artikel Anda melebihi batas maksimal 1500 kata.\n(Saat ini: ${totalKata} kata). Silakan ringkas kembali.`);
+            return;
+        }
+        if (!form.link_foto.value.trim() || !form.link_dokumen.value.trim()) {
+            alert('Untuk mengajukan publikasi, Link Foto Sampul dan Link Dokumen wajib diisi.');
+            return;
         }
     }
-});
 
-// --- FUNGSI LOGIN & SUBMIT API ---
+    const btnDraft = document.getElementById('btnSimpanDraft');
+    const btnSubmit = document.getElementById('btnSubmitArtikel');
+    btnDraft.disabled = true; btnSubmit.disabled = true;
+    
+    if (statusTujuan === 'Draft') btnDraft.innerText = 'Menyimpan Draf...';
+    else btnSubmit.innerText = 'Mengirim ke Ketua...';
+
+    const dataObj = {
+        row_id: rowId,
+        nama: form.nama.value,
+        jenjang: form.jenjang.value,
+        kategori: form.kategori.value,
+        judul: form.judul.value,
+        abstraksi: document.getElementById('rte-abstraksi').innerHTML,
+        situasi: document.getElementById('rte-situasi').innerHTML,
+        tantangan: document.getElementById('rte-tantangan').innerHTML,
+        aksi: document.getElementById('rte-aksi').innerHTML,
+        refleksi: document.getElementById('rte-refleksi').innerHTML,
+        link_foto: form.link_foto.value,
+        link_dokumen: form.link_dokumen.value,
+        status_ajuan: statusTujuan
+    };
+
+    const actionType = rowId ? 'edit_article' : 'submit_article';
+
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: actionType, data: dataObj })
+        });
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            if (statusTujuan === 'Draft') {
+                alert('Draf berhasil disimpan! Anda dapat melanjutkan menulis kapan saja.');
+            } else {
+                alert('Berhasil! Artikel telah diajukan dengan status "Menunggu Persetujuan" Ketua.');
+            }
+            toggleFormArtikel(false);
+            fetchRiwayat();
+            fetchFeed();
+        } else {
+            alert('Gagal: ' + result.message);
+        }
+    } catch (error) {
+        alert('Terjadi kesalahan jaringan.');
+    } finally {
+        btnDraft.disabled = false; btnSubmit.disabled = false;
+        btnDraft.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan sebagai Draf';
+        btnSubmit.innerHTML = '<i class="ph-bold ph-paper-plane-tilt"></i> Ajukan Publikasi (Kirim ke Ketua)';
+    }
+}
+
+// --- FUNGSI HAPUS ARTIKEL ---
+async function hapusArtikelRiwayat(index) {
+    const item = daftarRiwayatUser[index];
+    if (!item) return;
+
+    const konfirmasi = confirm(`Apakah Anda yakin ingin menghapus artikel "${item.judul}" secara permanen?`);
+    if (!konfirmasi) return;
+
+    const user = cekLogin();
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'delete_article', row_id: item.row_id, nama: user.nama })
+        });
+        const result = await response.json();
+        if (result.status === 'success') {
+            alert('Artikel berhasil dihapus.');
+            fetchRiwayat();
+            fetchFeed();
+        } else {
+            alert('Gagal menghapus: ' + result.message);
+        }
+    } catch (error) {
+        alert('Kesalahan jaringan saat menghapus artikel.');
+    }
+}
+
+// --- FUNGSI MODAL PREVIEW ARTIKEL ---
+function bukaPreview(sumber, index) {
+    const item = sumber === 'riwayat' ? daftarRiwayatUser[index] : daftarFeedPublik[index];
+    if (!item) return;
+
+    const modal = document.getElementById('modal-preview');
+    const wadah = document.getElementById('isi-modal-preview');
+
+    wadah.innerHTML = `
+        <div style="margin-bottom: 15px;">
+            <span style="background: #FEE2E2; color: #D92B38; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">${item.kategori}</span>
+            <span style="color: #64748B; font-size: 0.85rem; margin-left: 8px;">• ${item.jenjang} • ${item.tanggal}</span>
+        </div>
+        <h2 style="color: #1E293B; font-size: 1.6rem; margin-bottom: 10px;">${item.judul}</h2>
+        <div style="font-size: 0.9rem; color: #475569; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #E2E8F0;">
+            Oleh: <b>${item.nama}</b>
+        </div>
+        ${item.link_foto && item.link_foto.startsWith('http') ? `<div style="margin-bottom: 20px; text-align: center;"><img src="${getDirectDriveLink(item.link_foto)}" referrerpolicy="no-referrer" style="max-width: 100%; max-height: 400px; border-radius: 10px; object-fit: cover;"></div>` : ''}
+        
+        <h4 style="color: #D92B38; margin-top: 15px; margin-bottom: 5px;">Abstraksi</h4>
+        <div style="margin-bottom: 15px;">${item.abstraksi || '-'}</div>
+
+        <h4 style="color: #D92B38; margin-top: 15px; margin-bottom: 5px;">Situasi (S)</h4>
+        <div style="margin-bottom: 15px;">${item.situasi || '-'}</div>
+
+        <h4 style="color: #D92B38; margin-top: 15px; margin-bottom: 5px;">Tantangan (T)</h4>
+        <div style="margin-bottom: 15px;">${item.tantangan || '-'}</div>
+
+        <h4 style="color: #D92B38; margin-top: 15px; margin-bottom: 5px;">Langkah Aksi (A)</h4>
+        <div style="margin-bottom: 15px;">${item.aksi || '-'}</div>
+
+        <h4 style="color: #D92B38; margin-top: 15px; margin-bottom: 5px;">Refleksi & Dampak (R)</h4>
+        <div style="margin-bottom: 25px;">${item.refleksi || '-'}</div>
+
+        ${item.link_dokumen && item.link_dokumen.startsWith('http') ? `
+        <div style="padding: 15px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 600; font-size: 0.9rem;">Dokumen Bukti Karya / Modul Ajar:</span>
+            <a href="${item.link_dokumen}" target="_blank" style="padding: 8px 15px; background: #1E293B; color: white; text-decoration: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">Buka Dokumen &raquo;</a>
+        </div>` : ''}
+    `;
+    modal.style.display = 'flex';
+}
+
+function tutupModalPreview() {
+    document.getElementById('modal-preview').style.display = 'none';
+}
+
+// --- FUNGSI LOGIN & PROFIL ---
 async function prosesLogin(event) {
     event.preventDefault();
     const npa = document.getElementById('npa').value.trim();
@@ -377,47 +648,6 @@ async function prosesLogin(event) {
     } finally {
         btn.innerText = 'Masuk'; btn.disabled = false;
     }
-}
-
-async function submitArtikelSAKTI(event) {
-    event.preventDefault();
-    const form = document.getElementById('formArtikelSakti');
-    const teksGabungan = `${form.abstraksi.value} ${form.situasi.value} ${form.tantangan.value} ${form.aksi.value} ${form.refleksi.value}`;
-    const totalKata = teksGabungan.trim().split(/\s+/).filter(word => word.length > 0).length;
-    
-    if (totalKata > 1500) {
-        alert(`Mohon maaf, artikel Anda melebihi batas maksimal 1500 kata.\n(Saat ini: ${totalKata} kata).`);
-        return;
-    }
-
-    const btn = document.getElementById('btnSubmitArtikel');
-    btn.innerText = 'Mengirim Data... Mohon Tunggu...'; btn.disabled = true;
-
-    const dataObj = {
-        nama: form.nama.value, jenjang: form.jenjang.value,
-        kategori: form.kategori.value, judul: form.judul.value,
-        abstraksi: form.abstraksi.value, situasi: form.situasi.value,
-        tantangan: form.tantangan.value, aksi: form.aksi.value,
-        refleksi: form.refleksi.value, link_foto: form.link_foto.value,
-        link_dokumen: form.link_dokumen.value
-    };
-
-    try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'submit_article', data: dataObj })
-        });
-        const result = await response.json();
-        if (result.status === 'success') {
-            alert('Berhasil! Artikel Anda terkirim dengan status "Draft" menunggu validasi Ketua.');
-            form.reset();
-            document.getElementById('angka-kata').innerText = '0';
-            toggleFormArtikel(false);
-            fetchRiwayat(); 
-        } else { alert('Gagal: ' + result.message); }
-    } catch (error) { alert('Terjadi kesalahan jaringan.'); } 
-    finally { btn.innerText = 'Kirim Artikel SAKTI'; btn.disabled = false; }
 }
 
 async function submitProfil(event) {
@@ -452,6 +682,7 @@ async function submitProfil(event) {
     }
 }
 
+// --- FUNGSI TARIK RIWAYAT & FEED ---
 async function fetchRiwayat() {
     const user = cekLogin();
     if (!user) return;
@@ -464,24 +695,37 @@ async function fetchRiwayat() {
         });
         const result = await response.json();
         if (result.status === 'success') {
-            if (result.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #94A3B8;">Belum ada artikel yang diajukan.</td></tr>';
+            daftarRiwayatUser = result.data;
+            if (daftarRiwayatUser.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #94A3B8;">Belum ada artikel yang diajukan.</td></tr>';
             } else {
                 let html = '';
-                result.data.forEach(item => {
-                    let statusBg = item.status === 'Approved' ? '#D1FAE5' : '#FEF3C7';
-                    let statusText = item.status === 'Approved' ? '#065F46' : '#92400E';
+                daftarRiwayatUser.forEach((item, index) => {
+                    let statusBg = '#FEF3C7', statusText = '#92400E', labelStatus = 'Menunggu Persetujuan';
+                    if (item.status === 'Approved') {
+                        statusBg = '#D1FAE5'; statusText = '#065F46'; labelStatus = 'Approved';
+                    } else if (item.status === 'Draft') {
+                        statusBg = '#F1F5F9'; statusText = '#475569'; labelStatus = 'Draf Tersimpan';
+                    }
+
                     html += `<tr style="border-bottom: 1px solid #E2E8F0;">
                         <td style="padding: 12px; font-size: 0.85rem; color: #64748B;">${item.tanggal}</td>
                         <td style="padding: 12px; font-size: 0.9rem; color: #1E293B; font-weight: 600;">${item.judul}</td>
                         <td style="padding: 12px; font-size: 0.85rem; color: #64748B;">${item.kategori}</td>
-                        <td style="padding: 12px; font-size: 0.85rem;"><span style="background: ${statusBg}; color: ${statusText}; padding: 4px 10px; border-radius: 20px; font-weight: 600;">${item.status}</span></td>
+                        <td style="padding: 12px; font-size: 0.82rem;">
+                            <span style="background: ${statusBg}; color: ${statusText}; padding: 4px 10px; border-radius: 20px; font-weight: 700; display: inline-block;">${labelStatus}</span>
+                        </td>
+                        <td style="padding: 12px; text-align: right; white-space: nowrap;">
+                            <button class="btn-aksi" onclick="bukaPreview('riwayat', ${index})" title="Pratinjau Artikel" style="color: #0284C7;"><i class="ph-bold ph-eye"></i> Preview</button>
+                            <button class="btn-aksi" onclick="bukaEditRiwayat(${index})" title="Edit Artikel" style="color: #D97706; margin-left: 4px;"><i class="ph-bold ph-pencil-simple"></i> Edit</button>
+                            <button class="btn-aksi" onclick="hapusArtikelRiwayat(${index})" title="Hapus Artikel" style="color: #D92B38; margin-left: 4px;"><i class="ph-bold ph-trash"></i> Hapus</button>
+                        </td>
                     </tr>`;
                 });
                 tbody.innerHTML = html;
             }
         }
-    } catch (error) { tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #D92B38;">Kesalahan jaringan.</td></tr>`; }
+    } catch (error) { tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #D92B38;">Kesalahan jaringan.</td></tr>`; }
 }
 
 async function fetchFeed() {
@@ -495,15 +739,15 @@ async function fetchFeed() {
             body: JSON.stringify({ action: 'get_feed' })
         });
         
-        const text = await response.text(); 
-        const result = JSON.parse(text); 
+        const result = await response.json(); 
 
         if (result.status === 'success') {
-            if (result.data.length === 0) {
+            daftarFeedPublik = result.data;
+            if (daftarFeedPublik.length === 0) {
                 container.innerHTML = '<div style="text-align: center; padding: 3rem; background: white; border-radius: 12px; border: 1px dashed #CBD5E1; color: #94A3B8;">Belum ada artikel yang dipublikasikan.</div>';
             } else {
                 let html = '';
-                result.data.forEach(item => {
+                daftarFeedPublik.forEach((item, index) => {
                     const namaAman = item.nama ? String(item.nama) : "Tanpa Nama";
                     const inisial = namaAman.charAt(0).toUpperCase();
                     
@@ -518,8 +762,8 @@ async function fetchFeed() {
                         </div>
                         <div style="padding: 1.5rem;">
                             <h4 style="color: #1E293B; margin-bottom: 10px; font-size: 1.1rem;">${item.judul}</h4>
-                            <p style="color: #475569; font-size: 0.9rem; line-height: 1.6;">${item.abstraksi}</p>
-                            <a href="#" onclick="alert('Mengarahkan ke artikel penuh.')" style="color: #D92B38; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-block; margin-top: 10px;">Lihat Selengkapnya &raquo;</a>
+                            <div style="color: #475569; font-size: 0.9rem; line-height: 1.6;">${item.abstraksi}</div>
+                            <a href="#" onclick="bukaPreview('feed', ${index}); return false;" style="color: #D92B38; font-size: 0.85rem; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 12px;">Baca Selengkapnya &raquo;</a>
                         </div>
                         ${item.link_foto && item.link_foto.startsWith('http') ? `<div style="width: 100%; height: 350px; background-color: #F1F5F9; background-image: url('${getDirectDriveLink(item.link_foto)}'); background-size: cover; background-position: center; border-top: 1px solid #F1F5F9; border-bottom: 1px solid #F1F5F9;"></div>` : ''}
                         <div style="padding: 1rem 1.5rem; background: #F8FAFC; display: flex; gap: 25px;">

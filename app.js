@@ -78,9 +78,11 @@ function loadView(viewName) {
         if (!user) { alert('Silakan login terlebih dahulu.'); loadView('login'); return; }
 
         // Render Avatar Dinamis (Gunakan foto jika ada, inisial jika tidak)
+        // Render Avatar Dinamis dengan Pelindung Error (Fallback)
+        const inisialUser = user.nama ? user.nama.charAt(0).toUpperCase() : 'U';
         const avatarHTML = user.foto && user.foto.trim() !== '' 
-            ? `<img src="${getDirectDriveLink(user.foto)}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">` 
-            : `<div style="width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">${user.nama.charAt(0)}</div>`;
+            ? `<img src="${getDirectDriveLink(user.foto)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div style=\\'width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;\\'>${inisialUser}</div>'" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">` 
+            : `<div style="width: 32px; height: 32px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">${inisialUser}</div>`;
 
         contentArea.innerHTML = `
             <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #F1F5F9; z-index: 2000; display: flex; font-family: 'Plus Jakarta Sans', sans-serif;">

@@ -435,29 +435,43 @@ async function fetchRiwayat() {
     } catch (error) { tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #D92B38;">Kesalahan jaringan.</td></tr>`; }
 }
 
+// --- FUNGSI MENARIK FEED SAKTI (VERSI SUPER DEBUG) ---
 async function fetchFeed() {
     const container = document.getElementById('feed-container');
     if(!container) return;
+    
+    console.log("1. Fungsi fetchFeed mulai berjalan...");
+
     try {
+        console.log("2. Meminta data feed ke Apps Script...");
         const response = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: 'get_feed' })
         });
-        const result = await response.json();
+        
+        console.log("3. Menerima balasan, memproses data...");
+        const text = await response.text(); 
+        console.log("4. Teks mentah dari server:", text); // CCTV isi data asli
+        
+        const result = JSON.parse(text); 
+
         if (result.status === 'success') {
             if (result.data.length === 0) {
                 container.innerHTML = '<div style="text-align: center; padding: 3rem; background: white; border-radius: 12px; border: 1px dashed #CBD5E1; color: #94A3B8;">Belum ada artikel yang dipublikasikan.</div>';
             } else {
                 let html = '';
                 result.data.forEach(item => {
-                    const inisial = item.nama.charAt(0).toUpperCase();
+                    // Pelindung jika ada kolom nama yang kosong di database
+                    const namaAman = item.nama ? String(item.nama) : "Tanpa Nama";
+                    const inisial = namaAman.charAt(0).toUpperCase();
+                    
                     html += `
                     <div style="background: white; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 1.5rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                         <div style="padding: 1rem 1.5rem; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #F1F5F9;">
                             <div style="width: 45px; height: 45px; border-radius: 50%; background: #1E293B; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">${inisial}</div>
                             <div>
-                                <div style="font-weight: 700; color: #1E293B; font-size: 0.95rem;">${item.nama}</div>
+                                <div style="font-weight: 700; color: #1E293B; font-size: 0.95rem;">${namaAman}</div>
                                 <div style="font-size: 0.75rem; color: #64748B;">${item.tanggal} • <span style="color: #D92B38; font-weight:600;">${item.kategori}</span> • ${item.jenjang}</div>
                             </div>
                         </div>
@@ -475,14 +489,15 @@ async function fetchFeed() {
                 });
                 container.innerHTML = html;
             }
-            } else {
-            // TAMBAHAN BARU: Menampilkan pesan jika server membalas dengan error
-            container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Gagal memuat feed: ${result.message}</div>`;
+        } else {
+            console.error("5. Server merespons error:", result.message);
+            container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Gagal memuat: ${result.message}</div>`;
         }
-        }
-    } catch (error) { container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Kesalahan jaringan.</div>`; }
+    } catch (error) { 
+        console.error("6. Error Sistem/Browser:", error);
+        container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #D92B38;">Terjadi masalah. Periksa tombol F12 (Console).</div>`; 
+    }
 }
-
 // --- FUNGSI UI DASBOR UTAMA ---
 function toggleDropdownProfil(event) {
     if (event) event.stopPropagation(); 

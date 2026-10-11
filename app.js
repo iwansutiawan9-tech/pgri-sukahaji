@@ -248,12 +248,24 @@ function loadView(viewName) {
                             </div>
                         </div>
 
-                        <!-- MENU PROFIL SAYA -->
+                      <!-- MENU PROFIL SAYA -->
                         <div id="menu-profil" class="dasbor-konten" style="display: none;">
                             <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 2rem;">
                                 <h3 style="color: #1E293B; margin-bottom: 15px;">Profil & Biodata</h3>
                                 <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">Lengkapi data diri dan foto profil Anda.</p>
-                                <!-- Form Tersambung ke update API -->
+                                
+                                <!-- Pratinjau Foto Profil Besar -->
+                                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding: 15px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+                                    ${user.foto && user.foto.trim() !== '' 
+                                        ? `<img src="${getDirectDriveLink(user.foto)}" referrerpolicy="no-referrer" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #D92B38;">`
+                                        : `<div style="width: 80px; height: 80px; background: #D92B38; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 2rem;">${inisialUser}</div>`
+                                    }
+                                    <div>
+                                        <div style="font-weight: 700; color: #1E293B; font-size: 1.1rem;">${user.nama}</div>
+                                        <div style="font-size: 0.85rem; color: #64748B; margin-top: 4px;">NPA: ${user.npa} \vert{} Jenjang:${user.jenjang}</div>
+                                    </div>
+                                </div>
+
                                 <form id="formProfil" onsubmit="submitProfil(event)">
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                         <div>
@@ -267,16 +279,15 @@ function loadView(viewName) {
                                     </div>
                                     <div style="margin-bottom: 15px;">
                                         <label style="display:block; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">Link Foto Profil (Google Drive)</label>
-                                        <input type="url" id="input-foto-profil" value="${user.foto || ''}" placeholder="Paste link foto di sini..." required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                        <input type="url" id="input-foto-profil" value="${user.foto || ''}" placeholder="https://drive.google.com/file/d/.../view?usp=sharing" required style="width: 100%; padding: 10px; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                        <small style="display:block; margin-top: 6px; color: #64748B; font-size: 0.78rem;">
+                                            <i class="ph-fill ph-info" style="color: #D92B38;"></i> <b>Penting:</b> Pastikan pengaturan berbagi (*Share*) file foto di Google Drive sudah diubah menjadi <b>"Siapa saja yang memiliki link" (Anyone with the link)</b>.
+                                        </small>
                                     </div>
                                     <button type="submit" id="btnSubmitProfil" style="padding: 10px 20px; background: #D92B38; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Simpan Pembaruan</button>
                                 </form>
                             </div>
                         </div>
-
-                    </div>
-                </div>
-            </div>`;
         
         setTimeout(() => {
             fetchRiwayat();
